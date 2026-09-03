@@ -1,5 +1,8 @@
 package pro.potoki.bekon.voice
 
+import pro.potoki.bekon.call.VoiceLatency
+import pro.potoki.bekon.call.VoicePcm
+
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -182,7 +185,7 @@ class PcmBridge(
                         .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                         .build(),
                 )
-                .setBufferSizeInBytes(minPlay.coerceAtLeast(VoicePcm.FRAME_BYTES * 4))
+                .setBufferSizeInBytes(VoicePcm.playBufBytes(minPlay))
                 .setTransferMode(AudioTrack.MODE_STREAM)
                 .build()
         } else {
@@ -192,7 +195,7 @@ class PcmBridge(
                 VoicePcm.SAMPLE_RATE,
                 AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT,
-                minPlay.coerceAtLeast(VoicePcm.FRAME_BYTES * 4),
+                VoicePcm.playBufBytes(minPlay),
                 AudioTrack.MODE_STREAM,
             )
         }
@@ -204,7 +207,7 @@ class PcmBridge(
             AudioFormat.CHANNEL_IN_MONO,
             AudioFormat.ENCODING_PCM_16BIT,
         )
-        return minRec.coerceAtLeast(VoicePcm.FRAME_BYTES * 4)
+        return minRec.coerceAtLeast(VoicePcm.FRAME_BYTES * VoiceLatency.bufMult)
     }
 
     private fun sourceChain(wanted: String): List<String> {

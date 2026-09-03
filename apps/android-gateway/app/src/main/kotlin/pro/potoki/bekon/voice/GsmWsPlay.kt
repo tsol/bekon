@@ -1,5 +1,7 @@
 package pro.potoki.bekon.voice
 
+import pro.potoki.bekon.call.VoicePcm
+
 import android.content.Context
 import android.os.SystemClock
 import android.util.Log
@@ -10,7 +12,7 @@ import kotlin.concurrent.thread
 /** Stream the last GSM-record WAV to the Voice WebSocket (0xA1 PCM). */
 object GsmWsPlay {
     private const val TAG = "GsmWsPlay"
-    private const val FRAME_MS = 20L
+    private const val FRAME_MS = VoicePcm.FRAME_MS.toLong()
     /** Extra frames before pacing so the desktop jitter buffer is not empty. */
     private const val PREROLL = 10
 

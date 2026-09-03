@@ -2,7 +2,8 @@ package pro.potoki.bekon.call
 
 object VoicePcm {
     const val SAMPLE_RATE = 16_000
-    const val FRAME_SAMPLES = 320
+    const val FRAME_MS = 10
+    const val FRAME_SAMPLES = SAMPLE_RATE * FRAME_MS / 1000
     const val FRAME_BYTES = FRAME_SAMPLES * 2
     const val PREFIX: Byte = 0xA1.toByte()
 
@@ -12,8 +13,10 @@ object VoicePcm {
             android.media.AudioFormat.CHANNEL_IN_MONO,
             android.media.AudioFormat.ENCODING_PCM_16BIT,
         )
-        return min.coerceAtLeast(FRAME_BYTES * 4)
+        return min.coerceAtLeast(FRAME_BYTES * VoiceLatency.bufMult)
     }
+
+    fun playBufBytes(minPlay: Int): Int = minPlay.coerceAtLeast(FRAME_BYTES * VoiceLatency.bufMult)
 
     fun encodeFrame(pcm: ByteArray): ByteArray {
         val out = ByteArray(1 + pcm.size)

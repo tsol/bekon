@@ -27,7 +27,9 @@ import kotlinx.coroutines.launch
 import pro.potoki.bekon.call.CallProtocol
 import pro.potoki.bekon.call.CtrlAck
 import pro.potoki.bekon.call.RemotePhoneState
+import pro.potoki.bekon.call.VoiceLatency
 import pro.potoki.bekon.call.WlyaCallClient
+import org.json.JSONObject
 
 class CallService : Service() {
 
@@ -44,9 +46,12 @@ class CallService : Service() {
         const val ACTION_SET_MODE = "pro.potoki.bekon.phone.SET_MODE"
         const val ACTION_MUTE = "pro.potoki.bekon.phone.MUTE"
         const val ACTION_SPEAKER = "pro.potoki.bekon.phone.SPEAKER"
+        const val ACTION_GW_LATENCY = "pro.potoki.bekon.phone.GW_LATENCY"
+        const val ACTION_LOCAL_LATENCY = "pro.potoki.bekon.phone.LOCAL_LATENCY"
         const val EXTRA_NUMBER = "number"
         const val EXTRA_MODE = "mode"
         const val EXTRA_ON = "on"
+        const val EXTRA_PRESET = "preset"
 
         @Volatile var instance: CallService? = null
             private set
@@ -79,6 +84,10 @@ class CallService : Service() {
             start(context, ACTION_MUTE) { it.putExtra(EXTRA_ON, muted) }
         fun speaker(context: Context, on: Boolean) =
             start(context, ACTION_SPEAKER) { it.putExtra(EXTRA_ON, on) }
+        fun gatewayLatencyPreset(context: Context, preset: String) =
+            start(context, ACTION_GW_LATENCY) { it.putExtra(EXTRA_PRESET, preset) }
+        fun localLatencyPreset(context: Context, preset: String) =
+            start(context, ACTION_LOCAL_LATENCY) { it.putExtra(EXTRA_PRESET, preset) }
 
         private fun start(context: Context, action: String, extra: (Intent) -> Unit = {}) {
             val i = Intent(context, CallService::class.java).setAction(action)
@@ -124,6 +133,15 @@ class CallService : Service() {
         finishActive(0, "No ack")
         pushUi()
     }
+    private var remoteWsRttMs: Long? = null
+    private var remoteBufMult: Int? = null
+    private var remoteLatencyPreset: String? = null
+    private val pingLoop = object : Runnable {
+        override fun run() {
+            if (client != null && pendingKind != "ping") sendPing()
+            handler.postDelayed(this, 2_000L)
+        }
+    }
     private val reconnect = Runnable {
         if (!userStopped && client == null) connect()
     }
@@ -152,6 +170,8 @@ class CallService : Service() {
             ACTION_SET_MODE -> setMode(intent.getStringExtra(EXTRA_MODE) ?: CallProtocol.MODE_PHONE)
             ACTION_MUTE -> muteMic(intent.getBooleanExtra(EXTRA_ON, false))
             ACTION_SPEAKER -> speaker(intent.getBooleanExtra(EXTRA_ON, false))
+            ACTION_GW_LATENCY -> gatewayLatencyPreset(intent.getStringExtra(EXTRA_PRESET).orEmpty())
+            ACTION_LOCAL_LATENCY -> localLatencyPreset(intent.getStringExtra(EXTRA_PRESET).orEmpty())
             else -> connect()
         }
         return START_STICKY
@@ -185,6 +205,13 @@ class CallService : Service() {
                         pendingKind = null
                         pendingId = null
                     }
+                    if (s == "joined") {
+                        handler.removeCallbacks(pingLoop)
+                        handler.postDelayed(pingLoop, 1_000L)
+                    }
+                    if (s == "idle" || s.startsWith("error") || s.startsWith("dropped")) {
+                        handler.removeCallbacks(pingLoop)
+                    }
                     if (s == "connecting") pendingKind = pendingKind ?: "connect"
                     note("·", s)
                     pushUi(s)
@@ -217,6 +244,7 @@ class CallService : Service() {
     }
 
     fun disconnect() {
+        handler.removeCallbacks(pingLoop)
         stopRingtone()
         hideIncoming()
         stopPcm()
@@ -278,6 +306,28 @@ class CallService : Service() {
         pcm?.setCapture(!muted && (lastState?.capture ?: true))
     }
 
+    fun gatewayLatencyPreset(preset: String) {
+        if (client == null) connect()
+        val p = preset.trim()
+        if (p.isBlank()) return
+        sendCtrl("gw-latency", CallProtocol.latencyPreset(p))
+    }
+
+    fun localLatencyPreset(preset: String) {
+        val p = preset.trim()
+        if (p.isBlank()) return
+        pcm?.applyPreset(p) ?: VoiceLatency.applyPreset(p)
+        note("·", "local latency $p buf=${VoiceLatency.bufMult}")
+        pushUi()
+    }
+
+    private fun sendPing() {
+        if (client == null) return
+        val id = CallProtocol.newId()
+        val json = VoiceLatency.pingJson(id)
+        client?.sendJson(json)
+    }
+
     fun speaker(on: Boolean) {
         speakerOn = on
         val am = getSystemService(AudioManager::class.java) ?: return
@@ -306,12 +356,32 @@ class CallService : Service() {
     }
 
     private fun onCallJson(text: String) {
+        if (replyPeerPing(text)) return
         logIncoming(text)
         CallProtocol.parseAck(text)?.let { ack ->
             onAck(ack)
             return
         }
         CallProtocol.parsePhoneState(text)?.let { onPhoneState(it) }
+    }
+
+    private fun replyPeerPing(text: String): Boolean {
+        return try {
+            val o = JSONObject(text)
+            if (o.optString("type") != VoiceLatency.TYPE_PING) return false
+            val id = o.optString("id")
+            if (id.isBlank()) return true
+            val t = o.optLong("t", 0L)
+            val ack = JSONObject()
+                .put("type", CallProtocol.TYPE_ACK)
+                .put("id", id)
+                .put("ok", true)
+            if (t > 0L) ack.put("t", t).put("tEcho", System.currentTimeMillis())
+            client?.sendJson(ack.toString())
+            true
+        } catch (_: Exception) {
+            false
+        }
     }
 
     private fun logIncoming(text: String) {
@@ -333,6 +403,10 @@ class CallService : Service() {
     }
 
     private fun onAck(ack: CtrlAck) {
+        if (ack.pingAt > 0L) {
+            VoiceLatency.recordRtt(ack.pingAt)
+            note("·", "rtt ${VoiceLatency.lastRttMs}ms")
+        }
         val kind = if (pendingId == null || ack.id == pendingId) pendingKind else null
         if (pendingId == null || ack.id == pendingId) {
             lastAck = if (ack.ok) "ok" else "fail"
@@ -354,6 +428,11 @@ class CallService : Service() {
 
     private fun onPhoneState(state: RemotePhoneState) {
         lastState = state
+        state.latency?.let { lat ->
+            remoteWsRttMs = lat.wsRttMs
+            remoteBufMult = lat.bufMult
+            remoteLatencyPreset = lat.latencyPreset
+        }
         val prev = lastCall
         val call = state.call.ifBlank { "idle" }
         syncAudio(state)
@@ -441,6 +520,12 @@ class CallService : Service() {
             lastAck = lastAck,
             number = shownNumber,
             outbound = outbound,
+            wsRttMs = VoiceLatency.lastRttMs,
+            localLatencyPreset = VoiceLatency.preset,
+            localBufMult = VoiceLatency.bufMult,
+            remoteWsRttMs = remoteWsRttMs,
+            remoteBufMult = remoteBufMult,
+            remoteLatencyPreset = remoteLatencyPreset,
         )
     }
 
@@ -633,6 +718,12 @@ data class CallUiState(
     val lastAck: String = "",
     val number: String = "",
     val outbound: Boolean = false,
+    val wsRttMs: Long = -1L,
+    val localLatencyPreset: String = VoiceLatency.PRESET_BALANCED,
+    val localBufMult: Int = 4,
+    val remoteWsRttMs: Long? = null,
+    val remoteBufMult: Int? = null,
+    val remoteLatencyPreset: String? = null,
 )
 
 data class ChannelLogLine(

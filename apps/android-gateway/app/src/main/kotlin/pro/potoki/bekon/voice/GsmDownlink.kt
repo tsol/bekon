@@ -1,5 +1,7 @@
 package pro.potoki.bekon.voice
 
+import pro.potoki.bekon.call.VoicePcm
+
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder

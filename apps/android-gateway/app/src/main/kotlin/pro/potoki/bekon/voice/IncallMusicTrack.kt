@@ -1,5 +1,8 @@
 package pro.potoki.bekon.voice
 
+import pro.potoki.bekon.call.VoiceLatency
+import pro.potoki.bekon.call.VoicePcm
+
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
@@ -20,7 +23,7 @@ object IncallMusicTrack {
             AudioFormat.CHANNEL_OUT_STEREO,
             AudioFormat.ENCODING_PCM_16BIT,
         )
-        val bytes = min.coerceAtLeast(VoicePcm.FRAME_BYTES * 8)
+        val bytes = min.coerceAtLeast(VoicePcm.FRAME_BYTES * VoiceLatency.injectMult)
         return if (Build.VERSION.SDK_INT >= 23) {
             AudioTrack.Builder()
                 .setAudioAttributes(

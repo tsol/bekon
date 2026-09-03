@@ -1,5 +1,7 @@
 package pro.potoki.bekon.voice
 
+import pro.potoki.bekon.call.VoicePcm
+
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

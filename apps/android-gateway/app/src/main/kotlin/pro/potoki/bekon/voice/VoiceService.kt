@@ -26,6 +26,7 @@ import androidx.core.app.NotificationCompat
 import org.json.JSONObject
 import pro.potoki.bekon.RootDetector
 import pro.potoki.bekon.SetupActivity
+import pro.potoki.bekon.call.VoiceLatency
 
 class VoiceService : Service() {
 
@@ -144,6 +145,14 @@ class VoiceService : Service() {
         }
     }
     private val reconnect = Runnable { openSocket() }
+    private val gatewayPing = object : Runnable {
+        override fun run() {
+            if (status == "joined" && client != null) {
+                client?.sendJson(VoiceLatency.pingJson(java.util.UUID.randomUUID().toString()))
+            }
+            handler.postDelayed(this, 2_000L)
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -204,6 +213,8 @@ class VoiceService : Service() {
                         syncAudio()
                         emitState()
                     }
+                    handler.removeCallbacks(gatewayPing)
+                    handler.postDelayed(gatewayPing, 1_000L)
                 }
             },
             onJson = { text -> handler.post { onPeerJson(text) } },
@@ -296,10 +307,15 @@ class VoiceService : Service() {
             return
         }
         when (o.optString("type")) {
+            VoiceLineState.TYPE_ACK -> {
+                val t = o.optLong("t", 0L)
+                if (t > 0L) VoiceLatency.recordRtt(t)
+            }
             VoiceLineState.TYPE_PING -> {
                 val id = o.optString("id")
                 if (id.isBlank()) return
-                sendAck(id, ok = true, error = null)
+                val t = o.optLong("t", 0L)
+                sendAck(id, ok = true, error = null, pingAt = t)
             }
             VoiceLineState.TYPE_CTRL -> {
                 val ctrl = VoiceCtrlMsg.parse(text) ?: return
@@ -321,6 +337,7 @@ class VoiceService : Service() {
         ok: Boolean,
         error: String?,
         state: VoiceLineState = currentState(),
+        pingAt: Long = -1L,
     ) {
         val o = JSONObject()
             .put("type", VoiceLineState.TYPE_ACK)
@@ -328,6 +345,10 @@ class VoiceService : Service() {
             .put("ok", ok)
             .put("state", state.toJson())
         if (error != null) o.put("error", error)
+        if (pingAt > 0L) {
+            o.put("t", pingAt)
+            o.put("tEcho", System.currentTimeMillis())
+        }
         client?.sendJson(o.toString())
     }
 
@@ -387,6 +408,32 @@ class VoiceService : Service() {
                 UplinkGain.setPreEmphasis(number != "0", VoicePrefs(this))
                 dialResult = "uplink ${UplinkGain.label()}"
             }
+            VoiceLineState.ACTION_LATENCY_PRESET -> {
+                val p = number?.trim().orEmpty()
+                if (p.isBlank()) throw IllegalStateException("latency-preset needs preset name")
+                VoiceLatency.applyPreset(p)
+                restartAudioPipelines()
+                dialResult = "latency ${VoiceLatency.preset} buf=${VoiceLatency.bufMult}"
+            }
+            VoiceLineState.ACTION_BUF_MULT -> {
+                val m = number?.toIntOrNull()
+                    ?: throw IllegalStateException("buf-mult needs number")
+                VoiceLatency.setBufMult(m)
+                restartAudioPipelines()
+                dialResult = "buf-mult ${VoiceLatency.bufMult}"
+            }
+            VoiceLineState.ACTION_INJECT_MULT -> {
+                val m = number?.toIntOrNull()
+                    ?: throw IllegalStateException("inject-mult needs number")
+                VoiceLatency.setInjectMult(m)
+                restartAudioPipelines()
+                dialResult = "inject-mult ${VoiceLatency.injectMult}"
+            }
+            VoiceLineState.ACTION_LATENCY_RESET -> {
+                VoiceLatency.reset()
+                restartAudioPipelines()
+                dialResult = "latency reset"
+            }
             else -> throw IllegalStateException("unknown action $action")
         }
     }
@@ -396,6 +443,27 @@ class VoiceService : Service() {
             "local mute needs PHONE + offhook + TAP"
         }
         dialResult = block()
+    }
+
+    private fun restartAudioPipelines() {
+        val wantWalkie = mode == VoiceLineState.MODE_WALKIE
+        val wantLine = mode == VoiceLineState.MODE_PHONE && callLabel == "offhook"
+        val hadLine = line != null
+        if (wantWalkie) {
+            pcm?.stop()
+            try {
+                pcm?.start()
+            } catch (e: Exception) {
+                Log.e(TAG, "pcm restart: ${e.message}")
+            }
+        }
+        if (wantLine && hadLine) {
+            stopLine()
+            openLine()
+        } else if (wantLine && !hadLine) {
+            startLine()
+        }
+        Log.i(TAG, "audio restarted preset=${VoiceLatency.preset} buf=${VoiceLatency.bufMult} inject=${VoiceLatency.injectMult}")
     }
 
     private fun setMode(wantedRaw: String) {
@@ -640,6 +708,7 @@ class VoiceService : Service() {
     private fun teardown() {
         wantSocket = false
         handler.removeCallbacks(reconnect)
+        handler.removeCallbacks(gatewayPing)
         handler.removeCallbacks(pulseState)
         unlistenNetwork()
         unlistenCallState()

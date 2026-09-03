@@ -55,8 +55,22 @@ Aliases: `dev:start`, `dev:stop`, `dev:status`, `dev:restart`.
 | `npm run gateway:deploy` | USB `adb install` debug APK |
 | `npm run gateway:deploy:magisk` | Root: Magisk priv-app overlay + reboot |
 | `npm run gateway:fix-adb` | Install Linux udev rules (sudo, once) |
-| `npm run gateway:update` | Push APK via phone-control-api tunnel (`TUNNEL=id`) |
+| `npm run gateway:update` | Build + push APK via tunnel putFile (`phone-control-api`) |
 | `npm run gateway:uplink` | Tiny HTML → phone Downloads (`UPDATE_PAGE=…`) |
+
+Tunnel id (pick one):
+
+```bash
+# direct script — --tunnel on the deploy script
+./apps/android-gateway/scripts/deploy update --tunnel phone-1
+./apps/android-gateway/scripts/deploy uplink --tunnel phone-1 --  # see script: UPDATE_PAGE env for uplink URL
+
+# via npm — extra args after --
+npm run gateway:update -- --tunnel phone-1
+npm run gateway:uplink -- --tunnel phone-1
+```
+
+`phone-1` is a substring of tunnel `id` or `label` from `curl -s http://127.0.0.1:18082/tunnels`. Legacy fallback: env `TUNNEL=phone-1` (same as `--tunnel`).
 
 Script: `apps/android-gateway/scripts/deploy`.
 

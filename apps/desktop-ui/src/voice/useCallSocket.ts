@@ -29,6 +29,14 @@ export type CallJson = {
   localMuteResult?: string
   uplinkGainDb?: number
   uplinkTilt?: boolean
+  frameMs?: number
+  bufMult?: number
+  injectMult?: number
+  latencyPreset?: string
+  wsRttMs?: number
+  playUnderruns?: number
+  t?: number
+  tEcho?: number
   state?: PhoneVoiceState
 }
 
@@ -55,6 +63,12 @@ export type PhoneVoiceState = {
   /** Extra dB applied to WS audio before it is injected into GSM uplink. */
   uplinkGainDb?: number
   uplinkTilt?: boolean
+  frameMs?: number
+  bufMult?: number
+  injectMult?: number
+  latencyPreset?: string
+  wsRttMs?: number
+  playUnderruns?: number
 }
 
 function newClientId(): string {

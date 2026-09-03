@@ -8,6 +8,7 @@ import android.media.AudioTrack
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
+import pro.potoki.bekon.call.VoiceLatency
 import pro.potoki.bekon.call.VoicePcm
 import kotlin.concurrent.thread
 
@@ -38,7 +39,7 @@ class ClientPcmBridge(
                 val r = record
                 if (r == null) {
                     try {
-                        Thread.sleep(20)
+                        Thread.sleep(VoicePcm.FRAME_MS.toLong())
                     } catch (_: InterruptedException) {
                     }
                     continue
@@ -87,6 +88,22 @@ class ClientPcmBridge(
         }
     }
 
+    fun restart() {
+        if (!running) return
+        stop()
+        start()
+    }
+
+    fun applyBufMult(mult: Int) {
+        VoiceLatency.setBufMult(mult)
+        restart()
+    }
+
+    fun applyPreset(preset: String) {
+        VoiceLatency.applyPreset(preset)
+        restart()
+    }
+
     fun stop() {
         running = false
         recThread?.join(500)
@@ -120,7 +137,7 @@ class ClientPcmBridge(
             AudioFormat.CHANNEL_OUT_MONO,
             AudioFormat.ENCODING_PCM_16BIT,
         )
-        val buf = minPlay.coerceAtLeast(VoicePcm.FRAME_BYTES * 4)
+        val buf = VoicePcm.playBufBytes(minPlay)
         return if (Build.VERSION.SDK_INT >= 23) {
             AudioTrack.Builder()
                 .setAudioAttributes(

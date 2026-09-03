@@ -75,8 +75,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import pro.potoki.bekon.call.CallProtocol
+import pro.potoki.bekon.call.VoiceLatency
 import pro.potoki.bekon.phone.CallPrefs
 import pro.potoki.bekon.phone.CallService
+import pro.potoki.bekon.phone.CallUiState
 import pro.potoki.bekon.phone.ChannelLogLine
 import pro.potoki.bekon.phone.ContactHit
 import pro.potoki.bekon.phone.PhoneApp
@@ -204,6 +206,7 @@ fun PhoneRoot() {
                     joined = joined,
                     connecting = connecting,
                     walkie = walkie,
+                    call = call,
                     lastError = call.lastError,
                     onWalkie = { next ->
                         walkie = next
@@ -572,6 +575,7 @@ private fun SettingsPane(
     joined: Boolean,
     connecting: Boolean,
     walkie: Boolean,
+    call: CallUiState,
     lastError: String,
     onWalkie: (Boolean) -> Unit,
 ) {
@@ -623,6 +627,35 @@ private fun SettingsPane(
             Text("Walkie talkie", Modifier.weight(1f))
             Switch(walkie, onWalkie)
         }
+        Text(
+            "Latency",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+        )
+        val rttLabel = if (call.wsRttMs >= 0) "${call.wsRttMs} ms" else "—"
+        val remoteRtt = call.remoteWsRttMs?.let { if (it >= 0) "$it ms" else "—" } ?: "—"
+        Text(
+            "WS RTT (you→gateway): $rttLabel · gateway reports: $remoteRtt",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            "Phone ${call.localLatencyPreset} buf×${call.localBufMult} · Gateway ${call.remoteLatencyPreset ?: "?"} buf×${call.remoteBufMult ?: "?"}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+        Text("This phone", style = MaterialTheme.typography.labelLarge)
+        LatencyPresetRow(enabled = joined && !connecting) { preset ->
+            CallService.localLatencyPreset(context, preset)
+        }
+        Spacer(Modifier.height(8.dp))
+        Text("Home gateway (remote)", style = MaterialTheme.typography.labelLarge)
+        LatencyPresetRow(enabled = joined && !connecting) { preset ->
+            CallService.gatewayLatencyPreset(context, preset)
+        }
+        Spacer(Modifier.height(8.dp))
         if (lastError.isNotBlank()) {
             Text(lastError, color = BekonHangup, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(bottom = 8.dp))
         }
@@ -666,6 +699,25 @@ private fun SettingsPane(
             }
         }
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun LatencyPresetRow(enabled: Boolean, onPreset: (String) -> Unit) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(
+            VoiceLatency.PRESET_LOW to "Low",
+            VoiceLatency.PRESET_BALANCED to "Bal",
+            VoiceLatency.PRESET_STABLE to "Stable",
+        ).forEach { (id, label) ->
+            Button(
+                onClick = { onPreset(id) },
+                enabled = enabled,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(label, fontSize = 12.sp)
+            }
+        }
     }
 }
 

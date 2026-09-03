@@ -13,8 +13,18 @@ object CallProtocol {
     const val ACTION_PICKUP = "pickup"
     const val ACTION_CANCEL = "cancel"
     const val ACTION_DIAL = "dial"
+    const val ACTION_LATENCY_PRESET = VoiceLatency.ACTION_LATENCY_PRESET
+    const val ACTION_BUF_MULT = VoiceLatency.ACTION_BUF_MULT
+    const val ACTION_INJECT_MULT = VoiceLatency.ACTION_INJECT_MULT
+    const val ACTION_LATENCY_RESET = VoiceLatency.ACTION_LATENCY_RESET
 
     fun pickup(id: String = newId()): String = ctrlJson(action = ACTION_PICKUP, id = id)
+    fun latencyPreset(preset: String, id: String = newId()): String =
+        ctrlJson(action = ACTION_LATENCY_PRESET, number = preset, id = id)
+    fun bufMult(mult: Int, id: String = newId()): String =
+        ctrlJson(action = ACTION_BUF_MULT, number = mult.toString(), id = id)
+    fun latencyReset(id: String = newId()): String =
+        ctrlJson(action = ACTION_LATENCY_RESET, id = id)
     fun cancel(id: String = newId()): String = ctrlJson(action = ACTION_CANCEL, id = id)
     fun dial(number: String, id: String = newId()): String = ctrlJson(action = ACTION_DIAL, number = number, id = id)
     fun setMode(mode: String, id: String = newId()): String = ctrlJson(mode = mode, id = id)
@@ -63,6 +73,7 @@ object CallProtocol {
                 ok = o.optBoolean("ok", true),
                 error = o.optString("error").takeIf { it.isNotBlank() },
                 state = state,
+                pingAt = if (o.has("t")) o.optLong("t") else -1L,
             )
         } catch (_: Exception) {
             null
@@ -76,6 +87,7 @@ object CallProtocol {
             "acoustic" -> MODE_WALKIE
             else -> rawMode.ifBlank { MODE_PHONE }
         }
+        val latency = VoiceLatency.parseLatencyFields(o)
         return RemotePhoneState(
             call = o.optString("call", "idle").ifBlank { "idle" },
             mode = mode,
@@ -84,6 +96,7 @@ object CallProtocol {
             capture = o.optBoolean("capture", true),
             playback = o.optBoolean("playback", true),
             dialResult = o.optString("dialResult"),
+            latency = latency,
         )
     }
 }
@@ -96,6 +109,7 @@ data class RemotePhoneState(
     val capture: Boolean,
     val playback: Boolean,
     val dialResult: String = "",
+    val latency: LatencyFields? = null,
 )
 
 data class CtrlAck(
@@ -103,6 +117,7 @@ data class CtrlAck(
     val ok: Boolean,
     val error: String?,
     val state: RemotePhoneState?,
+    val pingAt: Long = -1L,
 )
 
 data class VoiceCtrlMsg(

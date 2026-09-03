@@ -1,5 +1,6 @@
 export const SAMPLE_RATE = 16_000
-export const FRAME_SAMPLES = 320 // 20 ms
+export const FRAME_MS = 10
+export const FRAME_SAMPLES = SAMPLE_RATE * FRAME_MS / 1000 // 10 ms
 export const FRAME_PREFIX = 0xa1
 
 export function resample(input: Float32Array, fromRate: number, toRate: number): Float32Array {

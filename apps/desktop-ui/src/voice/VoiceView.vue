@@ -35,6 +35,12 @@ const phoneLocalTx = ref('normal')
 const phoneLocalMuteResult = ref('')
 const phoneUplinkGain = ref(12)
 const phoneUplinkTilt = ref(true)
+const wsRttMs = ref(-1)
+const phoneFrameMs = ref(10)
+const phoneBufMult = ref(4)
+const phoneInjectMult = ref(8)
+const phoneLatencyPreset = ref('balanced')
+const phonePlayUnderruns = ref(0)
 const phoneError = ref('')
 const lastAckId = ref('')
 const dialNumber = ref('')
@@ -46,8 +52,8 @@ let applyingRemote = false
 const { status, error, bytesIn, bytesOut, connect, disconnect, sendPcm, sendJson, setHandler, setJsonHandler } = useCallSocket()
 const bytesInLabel = computed(() => formatBytes(bytesIn.value))
 const bytesOutLabel = computed(() => formatBytes(bytesOut.value))
-const connecting = computed(() => status.value === 'connecting' || isBusy('ping'))
-const connected = computed(() => status.value === 'joined' && !isBusy('ping'))
+const connecting = computed(() => status.value === 'connecting')
+const connected = computed(() => status.value === 'joined')
 const ctrlBusy = computed(() => Object.keys(pending.value).length > 0)
 const localMuteReady = computed(() =>
   connected.value && phoneMode.value === 'phone' && phoneCall.value === 'offhook' && phoneBridge.value,
@@ -147,6 +153,12 @@ function applyState(state: PhoneVoiceState) {
   if (typeof state.localMuteResult === 'string') phoneLocalMuteResult.value = state.localMuteResult
   if (typeof state.uplinkGainDb === 'number') phoneUplinkGain.value = state.uplinkGainDb
   if (typeof state.uplinkTilt === 'boolean') phoneUplinkTilt.value = state.uplinkTilt
+  if (typeof state.frameMs === 'number') phoneFrameMs.value = state.frameMs
+  if (typeof state.bufMult === 'number') phoneBufMult.value = state.bufMult
+  if (typeof state.injectMult === 'number') phoneInjectMult.value = state.injectMult
+  if (typeof state.latencyPreset === 'string' && state.latencyPreset) phoneLatencyPreset.value = state.latencyPreset
+  if (typeof state.wsRttMs === 'number' && state.wsRttMs >= 0) wsRttMs.value = state.wsRttMs
+  if (typeof state.playUnderruns === 'number') phonePlayUnderruns.value = state.playUnderruns
   applyingRemote = false
 }
 
@@ -158,6 +170,9 @@ function onPhoneJson(msg: CallJson) {
   if (msg.type === 'ack' || msg.type === 'ctrl-ack') {
     const id = msg.id || ''
     lastAckId.value = id
+    if (typeof msg.t === 'number' && msg.t > 0) {
+      wsRttMs.value = Math.max(0, Date.now() - msg.t)
+    }
     settlePending(id)
     if (msg.ok === false) phoneError.value = msg.error || 'ctrl failed'
     else {
@@ -235,11 +250,32 @@ function sendCtrl(key: string, extra: Record<string, unknown> = {}) {
 }
 
 function sendPing() {
-  if (status.value !== 'joined' || ctrlBusy.value) return
-  const id = beginWait('ping')
-  if (!id) return
-  const sent = sendJson({ type: 'ping', id })
-  if (!sent) failWait('ping', id, 'not sent')
+  if (status.value !== 'joined') return
+  const id = newCtrlId()
+  sendJson({ type: 'ping', id, t: Date.now() })
+}
+
+function setGatewayLatency(preset: string) {
+  sendCtrl(`latency-${preset}`, { action: 'latency-preset', number: preset })
+}
+
+function setGatewayBufMult(mult: number) {
+  sendCtrl(`buf-${mult}`, { action: 'buf-mult', number: String(mult) })
+}
+
+let pingTimer: number | null = null
+
+function startPingLoop() {
+  stopPingLoop()
+  sendPing()
+  pingTimer = window.setInterval(sendPing, 2000)
+}
+
+function stopPingLoop() {
+  if (pingTimer != null) {
+    window.clearInterval(pingTimer)
+    pingTimer = null
+  }
 }
 
 function setMode(mode: 'phone' | 'walkie') {
@@ -342,7 +378,7 @@ async function onConnect() {
       seed: seed.value,
       room: room.value.trim(),
     })
-    sendPing()
+    startPingLoop()
     await startCapture()
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e)
@@ -352,6 +388,7 @@ async function onConnect() {
 }
 
 function onDisconnect() {
+  stopPingLoop()
   disconnect()
   stopAudio()
 }
@@ -369,6 +406,7 @@ function dial() {
 }
 
 onUnmounted(() => {
+  stopPingLoop()
   clearPending()
   stopAudio()
   void audioCtx?.close()
@@ -395,6 +433,7 @@ onUnmounted(() => {
       <button v-else class="stop" @click="onDisconnect">Disconnect</button>
       <span class="status" :class="status">{{ status }}</span>
       <span class="xfer">in {{ bytesInLabel }} · out {{ bytesOutLabel }}</span>
+      <span v-if="wsRttMs >= 0" class="xfer"> · rtt {{ wsRttMs }} ms</span>
     </div>
     <p v-if="error" class="err">{{ error }}</p>
 
@@ -447,6 +486,31 @@ onUnmounted(() => {
         <li v-if="!Object.keys(phoneFlow).length">no state yet</li>
       </ul>
       <p v-if="phoneTapDiag" class="diag">tap: {{ phoneTapDiag }}</p>
+
+      <p class="diag section-title">Gateway latency (remote)</p>
+      <p class="diag">
+        frame {{ phoneFrameMs }} ms · buf×{{ phoneBufMult }} · inject×{{ phoneInjectMult }}
+        · preset {{ phoneLatencyPreset }}
+        <span v-if="phonePlayUnderruns > 0"> · underruns {{ phonePlayUnderruns }}</span>
+      </p>
+      <div class="row compact">
+        <button
+          v-for="p in ['low', 'balanced', 'stable']"
+          :key="p"
+          :disabled="!connected || ctrlBusy"
+          :class="{ go: phoneLatencyPreset === p, busy: isBusy(`latency-${p}`) }"
+          @click="setGatewayLatency(p)"
+        >{{ isBusy(`latency-${p}`) ? '…' : p }}</button>
+      </div>
+      <div class="row compact">
+        <button
+          v-for="m in [2, 4, 8]"
+          :key="m"
+          :disabled="!connected || ctrlBusy"
+          :class="{ go: phoneBufMult === m, busy: isBusy(`buf-${m}`) }"
+          @click="setGatewayBufMult(m)"
+        >buf×{{ m }}</button>
+      </div>
 
       <p class="diag section-title">GSM uplink gain (desktop → radio)</p>
       <div class="row compact">

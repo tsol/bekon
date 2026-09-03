@@ -7,6 +7,20 @@ unset ANDROID_PREFS_ROOT
 ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 cd "$ROOT_DIR"
 
+GRADLE=(./gradlew --project-cache-dir "$ROOT_DIR/.gradle-host")
+
+build_apk() {
+    echo "--- Building Android Client ---"
+    if ! "${GRADLE[@]}" :android-client:app:assembleDebug; then
+        echo "Error: gradle assembleDebug failed — not deploying." >&2
+        exit 1
+    fi
+    if [[ ! -f "$APK" ]]; then
+        echo "Error: build finished but no APK at $APK" >&2
+        exit 1
+    fi
+}
+
 resolve_adb() {
     if [[ -n "${ADB:-}" && -x "$ADB" ]]; then
         return 0
@@ -56,9 +70,9 @@ Deploy options:
     REBOOT=auto  reboot only if the Magisk overlay was applied
 
 Update options:
-  --tunnel ID     Tunnel id or label substring (or TUNNEL=)
+  --tunnel ID     Tunnel id or label substring (required if several tunnels run)
   PHONE_API       Default $PHONE_API
-  UPDATE_PAGE     Default https://your-relay.example/u (self-hosted wlya-server)
+  UPDATE_PAGE     For uplink: your relay HTTPS /u URL (self-hosted wlya-server)
 
   Do not use update for a ~8MB APK — it OOMs ingest on the phone.
   Host the APK: ./packages/wlya-server/scripts/relay deploy && ./packages/wlya-server/scripts/relay publish-apk
@@ -72,6 +86,8 @@ Examples:
   MAGISK=1 REBOOT=0 $0 deploy
   $0 update --tunnel phone-1
   $0 uplink --tunnel phone-1
+  npm run gateway:update -- --tunnel phone-1
+  npm run gateway:uplink -- --tunnel phone-1
 EOF
 }
 
@@ -120,14 +136,11 @@ show_device_status() {
 }
 
 ensure_apk() {
-    if [[ ! -f "$APK" ]]; then
-        echo "APK not found, building..."
-        ./gradlew :android-client:app:assembleDebug --project-cache-dir "$ROOT_DIR/.gradle-host"
+    if [[ -f "$APK" ]]; then
+        return 0
     fi
-    if [[ ! -f "$APK" ]]; then
-        echo "Error: build failed, no APK at $APK" >&2
-        exit 1
-    fi
+    echo "APK not found, building..."
+    build_apk
 }
 
 # Magisk su -c must be ONE remote string. `adb shell su -c 'a && b'` becomes
@@ -412,8 +425,7 @@ fi
 
 case "$COMMAND" in
     build)
-        echo "--- Building Android Client ---"
-        ./gradlew :android-client:app:assembleDebug --project-cache-dir "$ROOT_DIR/.gradle-host"
+        build_apk
         ;;
     fix-adb)
         echo "--- Fixing ADB USB permissions (udev) ---"
@@ -493,9 +505,8 @@ case "$COMMAND" in
         fi
         ;;
     update)
-        echo "--- Building Android Client ---"
         echo "warn: full APK via WLYA can freeze the phone. Prefer: $0 uplink"
-        ./gradlew :android-client:app:assembleDebug --project-cache-dir "$ROOT_DIR/.gradle-host"
+        build_apk
         tunnel_update
         ;;
     uplink)

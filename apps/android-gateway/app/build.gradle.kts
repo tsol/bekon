@@ -12,8 +12,8 @@ android {
         applicationId = "pro.potoki.bekon"
         minSdk = 24
         targetSdk = 34
-        versionCode = 11
-        versionName = "1.10-wlya"
+        versionCode = 12
+        versionName = "1.11-latency"
     }
 
     buildTypes {
@@ -60,6 +60,7 @@ tasks.named("preBuild") {
 
 dependencies {
     implementation(project(":wlya-core"))
+    implementation(project(":bekon-call"))
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")

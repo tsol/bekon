@@ -1,6 +1,7 @@
 package pro.potoki.bekon.voice
 
 import org.json.JSONObject
+import pro.potoki.bekon.call.VoiceLatency
 
 data class VoiceLineState(
     val call: String = "idle",
@@ -42,6 +43,7 @@ data class VoiceLineState(
             .put("uplinkGainDb", uplinkGainDb)
             .put("uplinkTilt", uplinkTilt)
             .put("flow", VoiceMeters.flowJson())
+        VoiceLatency.putJson(o)
         if (VoiceMeters.debug) o.put("meters", VoiceMeters.toJson())
         return o
     }
@@ -84,6 +86,10 @@ data class VoiceLineState(
         const val ACTION_LOCAL_RESTORE = "local-restore"
         const val ACTION_UPLINK_GAIN = "uplink-gain"
         const val ACTION_UPLINK_TILT = "uplink-tilt"
+        const val ACTION_LATENCY_PRESET = VoiceLatency.ACTION_LATENCY_PRESET
+        const val ACTION_BUF_MULT = VoiceLatency.ACTION_BUF_MULT
+        const val ACTION_INJECT_MULT = VoiceLatency.ACTION_INJECT_MULT
+        const val ACTION_LATENCY_RESET = VoiceLatency.ACTION_LATENCY_RESET
 
         fun normalizeMode(raw: String): String = when (raw) {
             "line", MODE_PHONE -> MODE_PHONE

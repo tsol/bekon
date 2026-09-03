@@ -1,5 +1,7 @@
 package pro.potoki.bekon.voice
 
+import pro.potoki.bekon.call.VoicePcm
+
 import android.util.Log
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient

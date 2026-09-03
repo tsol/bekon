@@ -18,6 +18,6 @@ Idle → A; off-hook → best of B/C; hang up → A.
 
 The desktop Voice tab is always local mic/speaker. It does not need to know A/B/C.
 
-Shared client library: `packages/bekon-call`. Magisk module: [`apps/android-gateway/magisk/wlya-voice/`](../apps/android-gateway/magisk/wlya-voice/README.md). Pack zip: `root-phone/scripts/pack-module.sh`. Device recon notes: [`root-phone/README.md`](../root-phone/README.md).
+Shared client library: `packages/bekon-call`. Audio: **16 kHz mono PCM**, **10 ms** frames (`0xA1` prefix). Latency presets and buffer multipliers are tunable remotely via voice `ctrl` (Bekon Phone Settings or desktop Voice debug). Magisk module: [`apps/android-gateway/magisk/wlya-voice/`](../apps/android-gateway/magisk/wlya-voice/README.md).
 
 Dial/answer/hold from the remote UI and multi-instance voice rooms are roadmap — [`USE-CASES.md`](USE-CASES.md).
