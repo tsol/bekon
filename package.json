@@ -4,13 +4,57 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --config apps/workbench/vite.config.ts",
-    "build": "vue-tsc -b apps/workbench && vite build --config apps/workbench/vite.config.ts",
-    "preview": "vite preview --config apps/workbench/vite.config.ts",
-    "dev:start": "node scripts/dev-start.mjs",
-    "dev:stop": "node scripts/dev-stop.mjs",
-    "dev:status": "node scripts/dev-status.mjs",
-    "dev:restart": "node scripts/dev-restart.mjs"
+    "install:all": "npm ci && npm ci --prefix apps/phone-control-api",
+
+    "desktop-ui:dev": "vite --config apps/desktop-ui/vite.config.ts",
+    "desktop-ui:build": "vue-tsc -b apps/desktop-ui && vite build --config apps/desktop-ui/vite.config.ts",
+    "desktop-ui:preview": "vite preview --config apps/desktop-ui/vite.config.ts",
+
+    "stack:start": "node scripts/dev-start.mjs",
+    "stack:stop": "node scripts/dev-stop.mjs",
+    "stack:status": "node scripts/dev-status.mjs",
+    "stack:restart": "node scripts/dev-restart.mjs",
+
+    "gateway:build": "bash apps/android-gateway/scripts/deploy build",
+    "gateway:deploy": "bash apps/android-gateway/scripts/deploy deploy",
+    "gateway:deploy:magisk": "bash apps/android-gateway/scripts/deploy deploy --magisk",
+    "gateway:fix-adb": "bash apps/android-gateway/scripts/deploy fix-adb",
+    "gateway:update": "bash apps/android-gateway/scripts/deploy update",
+    "gateway:uplink": "bash apps/android-gateway/scripts/deploy uplink",
+
+    "phone-app:build": "bash apps/android-phone/scripts/deploy build",
+    "phone-app:deploy": "bash apps/android-phone/scripts/deploy deploy",
+
+    "relay:compose": "docker compose -f packages/wlya-server/docker-compose.yml up -d --build",
+    "relay:start": "bash packages/wlya-server/scripts/relay start",
+    "relay:stop": "bash packages/wlya-server/scripts/relay stop",
+    "relay:status": "bash packages/wlya-server/scripts/relay status",
+    "relay:deploy": "bash tools/run.sh relay deploy",
+    "relay:publish-apk": "bash tools/run.sh relay publish-apk",
+
+    "phone-control-api:dev": "npm run dev --prefix apps/phone-control-api",
+    "phone-control-api:build": "npm run build --prefix apps/phone-control-api",
+    "phone-control-mcp": "python3 apps/phone-control-mcp/server.py",
+
+    "core:test": "./gradlew :wlya-core:test --project-cache-dir .gradle-host",
+    "android:build": "./gradlew :android-client:app:assembleDebug :bekon-phone:assembleDebug --project-cache-dir .gradle-host",
+
+    "lab:status": "bash root-phone/scripts/status.sh",
+    "lab:recon": "bash root-phone/scripts/recon.sh",
+    "lab:dump-mixer": "bash root-phone/scripts/dump-mixer.sh",
+    "lab:install-magisk-apk": "bash root-phone/scripts/install-magisk-apk.sh",
+    "magisk:pack": "bash root-phone/scripts/pack-module.sh",
+
+    "demo": "bash tools/demo/demo.sh",
+    "ci": "npm run desktop-ui:build && npm run core:test && npm run phone-control-api:build",
+
+    "dev": "npm run desktop-ui:dev",
+    "build": "npm run desktop-ui:build",
+    "preview": "npm run desktop-ui:preview",
+    "dev:start": "npm run stack:start",
+    "dev:stop": "npm run stack:stop",
+    "dev:status": "npm run stack:status",
+    "dev:restart": "npm run stack:restart"
   },
   "dependencies": {
     "vue": "^3.5.39",

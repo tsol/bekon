@@ -2,7 +2,7 @@ import groovy.json.JsonSlurper
 
 val adaptersRoot: File = rootProject.file("packages/wlya-adapters")
 val coreGeneratedDir: File = project.layout.buildDirectory.dir("generated/kotlin").get().asFile
-val androidModuleDir: File = project.rootProject.file("apps/gateway/app")
+val androidModuleDir: File = project.rootProject.file("apps/android-gateway/app")
 val androidGeneratedDir: File = androidModuleDir.resolve("build/generated/kotlin")
 
 fun Any?.toKotlinLiteral(): String = when (this) {

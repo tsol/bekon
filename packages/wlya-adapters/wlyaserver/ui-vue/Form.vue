@@ -12,7 +12,7 @@ const emit = defineEmits<{
 
 const cfg = ref({
   label: props.initialConfig?.label || '',
-  serverUrl: props.initialConfig?.serverUrl || 'https://wlya.potoki.pro',
+  serverUrl: props.initialConfig?.serverUrl || 'https://relay.example',
   clientId: props.initialConfig?.clientId || '',
   windowSize: Number(props.initialConfig?.windowSize) || 262144,
   pollIntervalMs: props.initialConfig?.pollIntervalMs ?? 2000,
@@ -37,7 +37,7 @@ function onDuty(d: Record<string, any>) {
     </label>
     <label>
       <span>Server URL</span>
-      <input v-model="cfg.serverUrl" type="text" placeholder="https://wlya.potoki.pro" />
+      <input v-model="cfg.serverUrl" type="text" placeholder="https://relay.example" />
     </label>
     <label>
       <span>Client ID (optional)</span>

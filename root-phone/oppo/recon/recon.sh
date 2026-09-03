@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -u
 
-export PATH="/home/harry/Android/Sdk/platform-tools:$PATH"
+# shellcheck source=../../scripts/adb.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/scripts/adb.sh"
 
 # OPPO A96 CPH2333 — READ-ONLY root/unlock reconnaissance
 # IMPORTANT: this script NEVER unlocks, flashes, erases, or modifies the phone.

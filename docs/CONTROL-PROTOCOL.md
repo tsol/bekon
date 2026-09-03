@@ -1,12 +1,12 @@
-# Phone Control — phone-manager HTTP API
+# Phone Control — phone-control-api HTTP API
 
-Canonical spec for **phone-manager** (`:18082`, Vite proxy `/phone-api`). Session state lives on the server. Do **not** talk to the APK or ADB for gestures; enqueue work, execute, then read state / image / snapshot.
+Canonical spec for **phone-control-api** (`:18082`, Vite proxy `/phone-api`). Session state lives on the server. Do **not** talk to the APK or ADB for gestures; enqueue work, execute, then read state / image / snapshot.
 
 Same phone, two layers for the product:
 
 | Who | Use |
 |-----|-----|
-| **Agents (MCP)** | [`packages/phone-mcp`](../packages/phone-mcp) (`:18083/mcp`) — compact tools over this queue |
+| **Agents (MCP)** | [`apps/phone-control-mcp`](../apps/phone-control-mcp) (`:18083/mcp`) — compact tools over this queue |
 | **This file** | HTTP kinds, endpoints, snapshot rules |
 
 Base (direct): `http://127.0.0.1:18082`  
@@ -134,11 +134,11 @@ curl -s -X POST "$BASE/tunnels/$ID/queue/execute"
 # → /state.lastPutFile.path  e.g. /data/user/0/pro.potoki.bekon/files/inbox/note.txt
 ```
 
-Reply from the phone (inside the execute batch slot): `{ "id", "ok": true, "type": "putFile", "path", "uri", "name", "size", "mime", "publicPath"? }`. `path` is always readable by Bekon. Public Downloads is optional (`publicPath`) and uses a unique display name if `app-debug.apk` is already taken in MediaStore. Max **25 MB**. Body limit on phone-manager is **40 MB** (base64 overhead).
+Reply from the phone (inside the execute batch slot): `{ "id", "ok": true, "type": "putFile", "path", "uri", "name", "size", "mime", "publicPath"? }`. `path` is always readable by Bekon. Public Downloads is optional (`publicPath`) and uses a unique display name if `app-debug.apk` is already taken in MediaStore. Max **25 MB**. Body limit on phone-control-api is **40 MB** (base64 overhead).
 
 **APK update:** send `name` ending in `.apk` (or mime `application/vnd.android.package-archive`) with Status **Auto-update APK** on. The `putFile` ACK is sent first. Then: rooted devices `pm install -r` from a copy of the private file, Magisk overlay, reboot **only if install succeeded**; unrooted devices open the system installer (tap Continue). A later tunnel message `{ "type": "apkUpdate", "stage", "detail", "rooted" }` reports the outcome. First install of this APK on Motorola still needs one manual/system install so the new updater is present.
 
-Remote push: `./tools/adb/gateway update` (running tunnel + Auto-update APK).
+Remote push: `./apps/android-gateway/scripts/deploy update` (running tunnel + Auto-update APK).
 
 ## Logs (on request)
 

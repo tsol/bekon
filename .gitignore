@@ -1,7 +1,6 @@
 root-phone/vendor/
 root-phone/out/
-root-phone/itel-a27/firmware/
-root-phone/itel-a27/out/
+root-phone/itel-a27/
 root-phone/redmi/firmware/
 root-phone/redmi/out/
 root-phone/motorola/firmware/
@@ -21,12 +20,14 @@ build/
 .dev/*.log
 .dev/*.json
 .gradle-host/
-phone-manager/mcp/__pycache__/
-phone-manager/mcp/shots/
-phone-manager/mcp/.phone_mcp.pid
-packages/phone-mcp/__pycache__/
-packages/phone-mcp/shots/
-packages/phone-mcp/.phone_mcp.pid
+.gradle-ci/
+apps/phone-control-api/mcp/__pycache__/
+apps/phone-control-api/mcp/shots/
+apps/phone-control-api/mcp/.phone_mcp.pid
+apps/phone-control-api/dist
+apps/phone-control-mcp/__pycache__/
+apps/phone-control-mcp/shots/
+apps/phone-control-mcp/.phone_mcp.pid
 **/__pycache__/
 *.pyc
 .idea/
@@ -35,4 +36,6 @@ store.json
 root-phone/**/AGENT-HANDOFF.md
 root-phone/**/HANDOFF.md
 root-phone/**/DEVICE.md
-apps/workbench/dist
+apps/desktop-ui/dist
+.env.deploy
+.demo/

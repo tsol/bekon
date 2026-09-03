@@ -13,7 +13,7 @@ MediaTek MT6768, MIUI V12. Lab notes for root + Line mode C.
 1. Modes A/B without root (walkie / acoustic).
 2. OEM unlock + Mi Account + **168 hour** wait.
 3. Patch stock `boot.img` with Magisk → Mi Unlock → `fastboot flash boot`.
-4. Flash [`../../tools/magisk/wlya-voice/`](../../tools/magisk/wlya-voice/) via `../scripts/pack-module.sh`.
+4. Flash [`../../apps/android-gateway/magisk/wlya-voice/`](../../apps/android-gateway/magisk/wlya-voice/) via `../scripts/pack-module.sh`.
 
 ```bash
 ./root-phone/scripts/status.sh

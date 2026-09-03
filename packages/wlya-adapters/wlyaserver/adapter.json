@@ -4,7 +4,7 @@
   "adapterClass": "WlyaServerAdapter",
   "factoryKind": "simple",
   "defaultConfig": {
-    "serverUrl": "https://wlya.potoki.pro",
+    "serverUrl": "https://relay.example",
     "clientId": "",
     "windowSize": 262144,
     "pollIntervalMs": 2000,

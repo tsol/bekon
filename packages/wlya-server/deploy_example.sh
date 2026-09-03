@@ -347,9 +347,9 @@ step_verify() {
 #   SERVER_IP="37.60.235.35" \
 #   SERVER_USER="root" \
 #   SSH_PASS="xxx" \
-#   DOMAIN="wlya.potoki.pro" \
+#   DOMAIN="relay.example" \
 #   SERVER_APP_DIR="/opt/wlya-server/app" \
-#   SERVER_NGINX_AVAIL="/etc/nginx/sites-available/wlya.potoki.pro" \
+#   SERVER_NGINX_AVAIL="/etc/nginx/sites-available/relay.example" \
 #   COMPOSE_PORT="18081" \
 #   ADMIN_EMAIL="admin@potoki.pro" \
 #   ./deploy_example.sh

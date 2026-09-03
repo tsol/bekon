@@ -2,7 +2,7 @@ package com.wlya.core
 
 const val LOG_KEEP_LAST = 500
 const val LOG_PREVIEW_CHARS = 2_000
-/** Full inbound payloads for phone-manager (screenshots). UI still uses previews. */
+/** Full inbound payloads for phone-control-api (screenshots). UI still uses previews. */
 const val LOG_FULL_INBOUND = 8
 /** Keep screenshots; drop APK-sized commands so ingest/UI do not pin tens of MB. */
 const val LOG_FULL_INBOUND_CHARS = 800_000

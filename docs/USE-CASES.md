@@ -13,7 +13,7 @@ Docs in this repository are **English** by default.
 **Now**
 
 - Self-hosted `wlya-server` (`/v1/call` + message inbox).
-- Bekon Phone and the workbench Voice tab join a **room** (HMAC). Protocol field `seed` stays `seed`; UI says Secret / Room.
+- Bekon Phone and the desktop-ui Voice tab join a **room** (HMAC). Protocol field `seed` stays `seed`; UI says Secret / Room.
 - Gateway on the home phone: tunnel so the device stays on the wire, plus Line audio modes in [`LINE.md`](LINE.md) (walkie, acoustic GSM, optional Magisk electrical bridge).
 
 **Next**
@@ -31,8 +31,8 @@ Docs in this repository are **English** by default.
 **Now**
 
 - Gateway APK: screen, a11y snapshot, gestures, files, IME.
-- `phone-manager` queue API ([`CONTROL-PROTOCOL.md`](CONTROL-PROTOCOL.md)).
-- `phone-mcp` tools (`look`, `act`, `open`, …) over that queue. No ADB for the happy path.
+- `phone-control-api` queue API ([`CONTROL-PROTOCOL.md`](CONTROL-PROTOCOL.md)).
+- `phone-control-mcp` tools (`look`, `act`, `open`, …) over that queue. No ADB for the happy path.
 
 **Next**
 

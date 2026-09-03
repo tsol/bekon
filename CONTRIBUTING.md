@@ -1,12 +1,12 @@
 # Contributing
 
-Thanks for helping improve Bekon Suite. This repo is a monorepo: Kotlin core, Android apps, Vue workbench, Node services, and Python MCP tooling.
+Thanks for helping improve Bekon Suite. This repo is a monorepo: Kotlin core, Android apps, Vue desktop-ui, Node services, and Python MCP tooling.
 
 ## Prerequisites
 
-- **JDK 21** for Gradle (`wlya-core`, `wlya-desktop`, Android modules)
+- **JDK 21** for Gradle (`wlya-core`, `wlya-tunnel`, Android modules)
 - **Android SDK** for APK builds (`ANDROID_HOME` or `local.properties` with `sdk.dir`)
-- **Node.js** (npm) for the Vue workbench and `phone-manager`
+- **Node.js** (npm) for desktop-ui and `phone-control-api`
 - **Docker** (optional) for `wlya-server` relay via `docker compose`
 
 ## Build and test
@@ -14,37 +14,33 @@ Thanks for helping improve Bekon Suite. This repo is a monorepo: Kotlin core, An
 From the repository root:
 
 ```bash
-# Vue workbench
-npm install
-cd packages/phone-manager && npm install && cd ../..
-npm run build
-
-# Kotlin core tests (optional project cache dir keeps Gradle state out of ~/.gradle)
-./gradlew :wlya-core:test --project-cache-dir "$PWD/.gradle-host"
-
-# Android APKs (requires SDK)
-./gradlew :android-client:app:assembleDebug :bekon-phone:assembleDebug \
-  --project-cache-dir "$PWD/.gradle-host"
+npm run install:all
+npm run desktop-ui:build
+npm run core:test
+npm run android:build    # requires Android SDK
 ```
+
+See [`docs/COMMANDS.md`](docs/COMMANDS.md) for the full script index.
 
 ## Local dev stack
 
 ```bash
-pnpm dev:start    # or npm run dev:start — Vite + wlya-desktop :18080 + phone-manager :18082
+npm run stack:start      # desktop-ui + wlya-tunnel :18080 + phone-control-api :18082
+npm run relay:compose    # local Redis + relay (Docker)
 ```
 
-Relay (self-hosted):
-
-```bash
-cd packages/wlya-server
-docker compose up -d --build
-```
+Aliases: `dev:start`, `dev:stop`, `dev:status`.
 
 Point tunnel and voice clients at **your** relay URL — see [`packages/wlya-server/README.md`](packages/wlya-server/README.md).
 
-## ADB deploy scripts
+## ADB deploy
 
-`tools/adb/gateway` and `tools/adb/phone` resolve `adb` from `$ADB`, then `$ANDROID_HOME/platform-tools/adb`, then `$ANDROID_SDK_ROOT/platform-tools/adb`, then `PATH`.
+```bash
+npm run gateway:deploy
+npm run phone-app:deploy
+```
+
+`apps/android-gateway/scripts/deploy` and `apps/android-phone/scripts/deploy` resolve `adb` from `$ADB`, then `$ANDROID_HOME/platform-tools/adb`, then `$ANDROID_SDK_ROOT/platform-tools/adb`, then `PATH`.
 
 ## Docs
 

@@ -12,4 +12,4 @@ Qualcomm msm8953, RETRU. Used in the lab as a Line mode-C candidate (OEM unlock 
 ./root-phone/scripts/pack-module.sh
 ```
 
-Magisk module source: [`../../tools/magisk/wlya-voice/`](../../tools/magisk/wlya-voice/).
+Magisk module source: [`../../apps/android-gateway/magisk/wlya-voice/`](../../apps/android-gateway/magisk/wlya-voice/).

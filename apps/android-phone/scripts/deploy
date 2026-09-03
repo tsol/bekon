@@ -1,0 +1,89 @@
+# Build and USB-install Bekon Phone (call client). Do not use sudo for the whole script.
+
+unset ANDROID_PREFS_ROOT
+
+ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+cd "$ROOT_DIR"
+
+resolve_adb() {
+    if [[ -n "${ADB:-}" && -x "$ADB" ]]; then
+        return 0
+    fi
+    local candidate
+    for candidate in \
+        "${ANDROID_HOME:+$ANDROID_HOME/platform-tools/adb}" \
+        "${ANDROID_SDK_ROOT:+$ANDROID_SDK_ROOT/platform-tools/adb}" \
+        "$(command -v adb 2>/dev/null || true)"; do
+        if [[ -n "$candidate" && -x "$candidate" ]]; then
+            ADB="$candidate"
+            return 0
+        fi
+    done
+    echo "Error: adb not found. Set ADB=, ANDROID_HOME, or install platform-tools." >&2
+    return 1
+}
+resolve_adb
+
+APK="apps/android-phone/build/outputs/apk/debug/bekon-phone-debug.apk"
+SERIAL="${SERIAL:-}"
+
+print_usage() {
+    cat <<EOF
+Usage: $0 <build|deploy>
+  SERIAL=device $0 deploy
+  Optional one-shot prefs (not in the APK):
+    VOICE_URL  VOICE_ROOM  VOICE_SEED
+EOF
+}
+
+assemble() {
+    ./gradlew :bekon-phone:assembleDebug --project-cache-dir "$ROOT_DIR/.gradle-host"
+}
+
+adb_run() {
+    if [[ -n "$SERIAL" ]]; then
+        "$ADB" -s "$SERIAL" "$@"
+    else
+        "$ADB" "$@"
+    fi
+}
+
+write_voice_prefs() {
+    local seed="${VOICE_SEED:-}"
+    [[ -z "$seed" ]] && return 0
+    local url="${VOICE_URL:-}"
+    if [[ -z "$url" ]]; then
+        echo "warn: VOICE_URL unset — prefs written without url (set VOICE_URL=wss://your-relay/v1/call)" >&2
+    fi
+    local room="${VOICE_ROOM:-voice}"
+    echo "--- Write Voice prefs (device only) ---"
+    adb_run shell "run-as pro.potoki.bekon.phone mkdir -p shared_prefs"
+    printf '%s\n' "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name=\"url\">$url</string>
+    <string name=\"room\">$room</string>
+    <string name=\"seed\">$seed</string>
+</map>" | adb_run shell "run-as pro.potoki.bekon.phone sh -c 'cat > shared_prefs/bekon_phone.xml'"
+}
+
+cmd="${1:-help}"
+case "$cmd" in
+    build) assemble ;;
+    deploy)
+        assemble
+        if [[ ! -f "$APK" ]]; then
+            echo "No APK at $APK" >&2
+            exit 1
+        fi
+        echo "--- Install $APK ---"
+        adb_run install -r "$APK"
+        adb_run shell pm grant pro.potoki.bekon.phone android.permission.RECORD_AUDIO || true
+        adb_run shell pm grant pro.potoki.bekon.phone android.permission.READ_CONTACTS || true
+        adb_run shell pm grant pro.potoki.bekon.phone android.permission.POST_NOTIFICATIONS || true
+        write_voice_prefs
+        echo "--- Launch Bekon Phone ---"
+        adb_run shell am force-stop pro.potoki.bekon.phone || true
+        adb_run shell am start -n pro.potoki.bekon.phone/.MainActivity || true
+        ;;
+    *) print_usage ;;
+esac

@@ -62,7 +62,7 @@ async function main() {
     killPid(state.backendPid, 'SIGKILL')
   }
   if (isAlive(state.phonePid)) {
-    log(`phone-manager still alive — SIGKILL`)
+    log(`phone-control-api still alive — SIGKILL`)
     killPid(state.phonePid, 'SIGKILL')
   }
 
@@ -77,7 +77,7 @@ async function main() {
     killPid(state.backendPid, 'SIGKILL')
   }
   if (isAlive(state.phonePid)) {
-    log(`phone-manager stubborn — final SIGKILL`)
+    log(`phone-control-api stubborn — final SIGKILL`)
     killPid(state.phonePid, 'SIGKILL')
   }
 

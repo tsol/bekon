@@ -241,7 +241,7 @@ cmd_deploy() {
 }
 
 cmd_publish_apk() {
-    local apk="$ROOT_DIR/apps/gateway/app/build/outputs/apk/debug/app-debug.apk"
+    local apk="$ROOT_DIR/apps/android-gateway/app/build/outputs/apk/debug/app-debug.apk"
     if [ ! -f "$apk" ]; then
         echo "APK missing, building..."
         (cd "$ROOT_DIR" && ./gradlew :android-client:app:assembleDebug --project-cache-dir "$ROOT_DIR/.gradle-host")

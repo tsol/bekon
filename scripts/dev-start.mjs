@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * dev-start.mjs — Start Vite + wlya-desktop + phone-manager.
+ * dev-start.mjs — Start desktop-ui (Vite) + wlya-tunnel + phone-control-api.
  *
  * Default: Docker → fire-and-forget; host → foreground (Ctrl+C).
  * --bg / --fg override. JAVA_HOME is resolved per environment.
@@ -74,7 +74,9 @@ function spawnChild(name, cmd, args, env, { cwd = projectDir, detached, javaHome
 
   const prefix = `[${name}] `
   const write = (stream, d) => {
-    stream.write(prefix + d.toString().replace(/\n/g, `\n${prefix}`).replace(new RegExp(`\\n${prefix}$`), '\n'))
+    let out = prefix + d.toString().replace(/\n/g, `\n${prefix}`)
+    if (out.endsWith(prefix)) out = out.slice(0, -prefix.length) + '\n'
+    stream.write(out)
   }
   child.stdout.on('data', (d) => write(process.stdout, d))
   child.stderr.on('data', (d) => write(process.stderr, d))
@@ -104,19 +106,19 @@ async function main() {
   const viteBin = resolve(projectDir, 'node_modules/vite/bin/vite.js')
   if (!existsSync(viteBin)) throw new Error('Vite not installed — run pnpm install')
 
-  const tsxBin = resolve(projectDir, 'packages/phone-manager/node_modules/tsx/dist/cli.mjs')
-  if (!existsSync(tsxBin)) throw new Error('phone-manager deps missing — run npm install in packages/phone-manager/')
+  const tsxBin = resolve(projectDir, 'apps/phone-control-api/node_modules/tsx/dist/cli.mjs')
+  if (!existsSync(tsxBin)) throw new Error('phone-control-api deps missing — run npm install in apps/phone-control-api/')
 
   const spawnOpts = { detached: !foreground, javaHome }
   const vitePort = foreground ? VITE_PORT : String(VITE_PORTS[0])
-  const viteArgs = [viteBin, '--config', resolve(projectDir, 'apps/workbench/vite.config.ts'), '--port', String(vitePort), '--host', '0.0.0.0']
+  const viteArgs = [viteBin, '--config', resolve(projectDir, 'apps/desktop-ui/vite.config.ts'), '--port', String(vitePort), '--host', '0.0.0.0']
   if (foreground) viteArgs.push('--strictPort')
 
   const vite = spawnChild('vite', process.execPath, viteArgs, {}, spawnOpts)
-  const gradle = spawnChild('gradle', resolve(projectDir, 'gradlew'), [':wlya-desktop:run'], {
+  const gradle = spawnChild('gradle', resolve(projectDir, 'gradlew'), [':wlya-tunnel:run'], {
     WLYA_PORT: String(JAVA_PORT),
   }, spawnOpts)
-  const phone = spawnChild('phone-manager', process.execPath, [
+  const phone = spawnChild('phone-control-api', process.execPath, [
     tsxBin,
     foreground ? 'src/server.ts' : 'watch',
     foreground ? undefined : 'src/server.ts',
@@ -124,7 +126,7 @@ async function main() {
     PORT: String(PHONE_PORT),
     HOST: '0.0.0.0',
     WLYA_TUNNEL_URL: `http://127.0.0.1:${JAVA_PORT}`,
-  }, { ...spawnOpts, cwd: resolve(projectDir, 'packages/phone-manager') })
+  }, { ...spawnOpts, cwd: resolve(projectDir, 'apps/phone-control-api') })
 
   if (!foreground) {
     let actualPort = VITE_PORTS[0]
@@ -141,7 +143,7 @@ async function main() {
     }
     log(`Vite ready :${actualPort}`)
     log(`Java spawned PID=${gradle.pid} (fire-and-forget)`)
-    log(`phone-manager spawned PID=${phone.pid} :${PHONE_PORT}`)
+    log(`phone-control-api spawned PID=${phone.pid} :${PHONE_PORT}`)
     saveState(vite, gradle, phone, actualPort, { env: docker ? 'docker' : 'host' })
     console.log(`READY port=${actualPort} backendPort=${JAVA_PORT} phonePort=${PHONE_PORT} vitePid=${vite.pid} backendPid=${gradle.pid} phonePid=${phone.pid}`)
     process.exit(0)
@@ -168,7 +170,7 @@ async function main() {
 
   process.on('SIGINT', () => shutdown(0))
   process.on('SIGTERM', () => shutdown(0))
-  for (const [name, child] of [['Vite', vite], ['Java/Gradle', gradle], ['phone-manager', phone]]) {
+  for (const [name, child] of [['Vite', vite], ['Java/Gradle', gradle], ['phone-control-api', phone]]) {
     child.on('exit', (c) => {
       if (!shuttingDown) {
         log(`${name} exited (${c})`)
@@ -196,8 +198,8 @@ async function main() {
   }
   log(`API ready  http://localhost:${JAVA_PORT}/api/tunnels`)
 
-  if (!await waitFor('phone-manager', () => httpReady(PHONE_PORT, '/health'), 30, 500)) {
-    log('phone-manager failed to become ready on :' + PHONE_PORT)
+  if (!await waitFor('phone-control-api', () => httpReady(PHONE_PORT, '/health'), 30, 500)) {
+    log('phone-control-api failed to become ready on :' + PHONE_PORT)
     shutdown(1)
     return
   }

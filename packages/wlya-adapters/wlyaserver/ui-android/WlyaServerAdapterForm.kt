@@ -74,7 +74,7 @@ class WlyaServerAdapterForm : AdapterAndroidForm {
     override fun applyConfig(view: View, config: Map<String, String>) {
         val h = view.tag as Holder
         h.label.setText(config["label"] ?: "")
-        h.serverUrl.setText(config["serverUrl"] ?: "https://wlya.potoki.pro")
+        h.serverUrl.setText(config["serverUrl"] ?: "https://relay.example")
         h.clientId.setText(config["clientId"] ?: "")
         h.windowSize.setText(config["windowSize"] ?: "262144")
         AdapterDutySection().apply(h.duty, config, "primary", "2000")

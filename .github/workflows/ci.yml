@@ -8,7 +8,7 @@ on:
 
 jobs:
   node:
-    name: Workbench (npm)
+    name: desktop-ui (npm)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,6 +17,24 @@ jobs:
         with:
           node-version: "20"
           cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+  phone-control-api:
+    name: phone-control-api (npm)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/phone-control-api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: apps/phone-control-api/package-lock.json
 
       - run: npm ci
       - run: npm run build

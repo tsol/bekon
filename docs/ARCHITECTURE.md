@@ -8,17 +8,17 @@ How Bekon Suite pieces connect. Why it exists: [`USE-CASES.md`](USE-CASES.md). W
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  apps/workbench (Vue)                                            │
-│    /#/tunnels  →  wlya-desktop REST                              │
-│    /#/phone    →  phone-manager HTTP  (+ phone-mcp for agents)   │
+│  apps/desktop-ui (Vue)                                           │
+│    /#/tunnels  →  wlya-tunnel REST                               │
+│    /#/phone    →  phone-control-api HTTP  (+ phone-control-mcp)    │
 │    Voice tab   →  bekon-call WebSocket                           │
 └────────────┬─────────────────────┬──────────────────┬────────────┘
              │                     │                  │
              ▼                     ▼                  ▼
-   packages/wlya-desktop    packages/phone-manager   packages/bekon-call
+     apps/wlya-tunnel          apps/phone-control-api      packages/bekon-call
         :18080                    :18082              (client lib)
              │                     │                  │
-             │    polls wlya-desktop for tunnel list │
+             │    polls wlya-tunnel for tunnel list │
              └──────────┬──────────┘                  │
                         ▼                             │
               packages/wlya-core                        │
@@ -26,7 +26,7 @@ How Bekon Suite pieces connect. Why it exists: [`USE-CASES.md`](USE-CASES.md). W
                         │                             │
          ┌──────────────┴──────────────┐              │
          ▼                             ▼              ▼
-   apps/gateway APK              other JVM peers   packages/wlya-server
+   apps/android-gateway APK              other JVM peers   packages/wlya-server
    (Bekon Gateway)                                    :18081 default
    pro.potoki.bekon                                   Redis + HTTP/WS
          │                                                  │
@@ -36,7 +36,7 @@ How Bekon Suite pieces connect. Why it exists: [`USE-CASES.md`](USE-CASES.md). W
                                                           │
                               /v1/call WebSocket ◄────────┘
                                     ▲
-                    apps/phone (Bekon Phone) + workbench Voice tab
+                    apps/android-phone (Bekon Phone) + desktop-ui Voice tab
 ```
 
 ---
@@ -74,11 +74,11 @@ Lua script adapters (Telegram, Sheets, stego-email without a new APK) are planne
 
 ---
 
-## wlya-desktop (`:18080`)
+## wlya-tunnel (`:18080`)
 
-JVM service embedded in local dev and production desktop setups. REST API for tunnel CRUD, adapter config, message log, and start/stop. The Vue workbench `/#/tunnels` tab proxies `/api` here.
+JVM tunnel host for local dev and desktop setups. REST API for tunnel CRUD, adapter config, message log, and start/stop. The desktop-ui `/#/tunnels` tab proxies `/api` here.
 
-Gradle module: `packages/wlya-desktop`. Depends on `wlya-core` and generated adapter bindings.
+Gradle module: `apps/wlya-tunnel` (Kotlin package `com.wlya.desktop`). Depends on `wlya-core` and generated adapter bindings. State file: `.wlya/wlya-tunnel.json`.
 
 ---
 
@@ -99,11 +99,11 @@ Deploy your own instance; example hostnames in docs are illustrations, not a req
 
 ---
 
-## phone-manager and phone-mcp
+## phone-control-api and phone-control-mcp
 
-**`packages/phone-manager`** (`:18082`) sits between the workbench Control tab and a running tunnel. It does not talk to ADB directly: it enqueues gesture/screenshot commands, `wlya-desktop` forwards them through the tunnel to the Gateway APK, and results return on the same channel.
+**`apps/phone-control-api`** (`:18082`) sits between the desktop-ui Control tab and a running tunnel. It does not talk to ADB directly: it enqueues gesture/screenshot commands, `wlya-tunnel` forwards them through the tunnel to the Gateway APK, and results return on the same channel.
 
-**`packages/phone-mcp`** (`:18083/mcp`) exposes a compact MCP tool surface over phone-manager for agents (look, tap, nav, …). Spec: [`CONTROL-PROTOCOL.md`](CONTROL-PROTOCOL.md).
+**`apps/phone-control-mcp`** (`:18083/mcp`) exposes a compact MCP tool surface over phone-control-api for agents (look, tap, nav, …). Spec: [`CONTROL-PROTOCOL.md`](CONTROL-PROTOCOL.md).
 
 Env: `WLYA_TUNNEL_URL` (desktop base), `PORT`, `HOST`.
 
@@ -113,13 +113,13 @@ Env: `WLYA_TUNNEL_URL` (desktop base), `PORT`, `HOST`.
 
 Both are Android apps built from this monorepo; they target different roles.
 
-| | **Gateway** (`apps/gateway`) | **Bekon Phone** (`apps/phone`) |
+| | **Gateway** (`apps/android-gateway`) | **Bekon Phone** (`apps/android-phone`) |
 |--|------------------------------|--------------------------------|
 | Package | `pro.potoki.bekon` | `pro.potoki.bekon.phone` (module `bekon-phone`) |
 | Primary role | Tunnel endpoint + Control (screen, gestures, a11y) | Line client — voice / GSM bridge |
 | Shared code | `wlya-core`, adapters, `bekon-call` | `bekon-call` |
-| Deploy script | `tools/adb/gateway` | `tools/adb/phone` |
-| Workbench tab | Tunnels (config) + Control (queue) | Voice (companion) |
+| Deploy script | `apps/android-gateway/scripts/deploy` | `apps/android-phone/scripts/deploy` |
+| desktop-ui tab | Tunnels (config) + Control (queue) | Voice (companion) |
 
 One physical phone can run Gateway (tunnel + Control); another device (or profile) may run Bekon Phone for Line. Names: [`BRAND.md`](BRAND.md).
 
@@ -137,21 +137,21 @@ These are **different namespaces** on the same relay host:
 | Client | `wlyaserver` adapter, all tunnel peers | `WlyaCallClient` in Gateway Voice service and Bekon Phone |
 | UI field | Secret (tunnel) | Room + relay URL |
 
-Joining voice does not automatically join a tunnel channel, and vice versa. Configure both in the workbench or app settings.
+Joining voice does not automatically join a tunnel channel, and vice versa. Configure both in desktop-ui or app settings.
 
-Line audio modes (walkie, acoustic GSM, root ALSA bridge): [`LINE.md`](LINE.md). Optional Magisk module: [`tools/magisk/wlya-voice/`](../tools/magisk/wlya-voice/README.md).
+Line audio modes (walkie, acoustic GSM, root ALSA bridge): [`LINE.md`](LINE.md). Optional Magisk module: [`apps/android-gateway/magisk/wlya-voice/`](../apps/android-gateway/magisk/wlya-voice/README.md).
 
 ---
 
 ## Local dev stack
 
-`npm run dev:start` (`scripts/dev-start.mjs`) brings up:
+`npm run stack:start` (`scripts/dev-start.mjs`) brings up:
 
-1. Vite — `apps/workbench`
-2. `wlya-desktop` — `:18080`
-3. `phone-manager` — `:18082`
+1. Vite — `apps/desktop-ui`
+2. `wlya-tunnel` — `:18080`
+3. `phone-control-api` — `:18082`
 
-Relay is started separately (`packages/wlya-server/docker compose` or `scripts/relay`). MCP is optional (`packages/phone-mcp/server.py`).
+Relay is started separately (`packages/wlya-server/docker compose` or `scripts/relay`). MCP is optional (`apps/phone-control-mcp/server.py`).
 
 ---
 

@@ -8,7 +8,7 @@ Lab `DEVICE.md` files (serials, unlock tokens) are **gitignored** — do not lin
 
 | Path | What |
 |------|------|
-| [`../tools/magisk/wlya-voice/`](../tools/magisk/wlya-voice/) | Magisk module (`CAPTURE_AUDIO_OUTPUT`, props) |
+| [`../apps/android-gateway/magisk/wlya-voice/`](../apps/android-gateway/magisk/wlya-voice/) | Magisk module (`CAPTURE_AUDIO_OUTPUT`, props) |
 | [`vendor/`](vendor/) | Magisk APK (gitignored) |
 | [`scripts/`](scripts/) | Shared ADB helpers |
 | [`motorola/`](motorola/) | moto g(7) power — recon dumps |

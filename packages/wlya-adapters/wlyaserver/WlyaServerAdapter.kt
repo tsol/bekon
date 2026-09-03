@@ -190,7 +190,7 @@ class WlyaServerAdapter(
     }
 
     companion object {
-        const val DEFAULT_SERVER_URL = "https://wlya.potoki.pro"
+        const val DEFAULT_SERVER_URL = "https://relay.example"
         /** Default on-wire POST cap (TSPU/DPI often drops larger TLS/HTTP bodies). */
         const val DEFAULT_PACKET_SIZE = 262144
 

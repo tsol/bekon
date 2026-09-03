@@ -20,7 +20,7 @@ The pipe is **Bekon Line**: GSM audio over your relay, plus the WLYA tunnel so t
 
 Plug MCP into an agent and let it **own a real Android**: tap, swipe, launch apps, pay with your card, doomscroll Instagram, sit in settings until something works.
 
-That is **Bekon Control** — Gateway APK + `phone-manager` + `phone-mcp`. The agent does not ADB the device; it queues work through the tunnel.
+That is **Bekon Control** — Gateway APK + `phone-control-api` + `phone-control-mcp`. The agent does not ADB the device; it queues work through the tunnel.
 
 ### 3. Old Android as a smart speaker
 
@@ -49,10 +49,11 @@ One device, several modes — not four store brands. Names: [`docs/BRAND.md`](do
 
 ```
                     ┌─────────────────────────────────────┐
-                    │  Laptop — Bekon Workbench           │
+                    │  Laptop — Bekon desktop-ui          │
                     │  Tunnels · Control · Voice          │
-                    │  wlya-desktop :18080                │
-                    │  phone-manager :18082               │
+                    │  desktop-ui (Vite)                  │
+                    │  wlya-tunnel :18080                 │
+                    │  phone-control-api :18082           │
                     └──────────────┬──────────────────────┘
                                    │
               tunnel (HMAC)        │        voice room (HMAC join)
@@ -76,20 +77,19 @@ Tunnel traffic and voice rooms are separate paths on the same relay. See [`docs/
 ```bash
 git clone https://github.com/tsol/bekon.git && cd bekon
 
-# JDK 21 for Gradle. Android SDK only if you build APKs.
-
-npm install
-cd packages/phone-manager && npm install && cd ../..
-
-npm run dev:start
-# workbench + wlya-desktop :18080 + phone-manager :18082
-
-cd packages/wlya-server && docker compose up -d --build
+npm run install:all
+npm run demo              # wizard: relay + stack + demo channel/secret
+# or manually:
+npm run relay:compose     # local Redis + relay
+npm run stack:start       # desktop-ui + wlya-tunnel :18080 + phone-control-api :18082
+npm run gateway:deploy    # USB — needs ANDROID_HOME / adb
 ```
 
-Open the workbench URL from dev-start (default `http://127.0.0.1:5173`). Point adapters and voice at **your** relay.
+Open the UI URL from `npm run stack:status` (often `http://127.0.0.1:5174`). Point adapters and voice at **your** relay.
 
-**Android:** `ANDROID_HOME` set, then `./gradlew :android-client:app:assembleDebug` and `./tools/adb/gateway deploy`. Phone client: `./tools/adb/phone deploy`.
+**All commands:** [`docs/COMMANDS.md`](docs/COMMANDS.md).
+
+**Android (aliases):** `npm run gateway:build`, `npm run phone-app:deploy`.
 
 ---
 
@@ -97,18 +97,18 @@ Open the workbench URL from dev-start (default `http://127.0.0.1:5173`). Point a
 
 ```
 bekon/
-├── apps/workbench/     Vue shell — Tunnels / Control / Voice
-├── apps/gateway/       Gateway APK (Control + tunnel + Line service)
-├── apps/phone/         Bekon Phone — Line client
-├── packages/wlya-core/         Kotlin tunnel core
-├── packages/wlya-adapters/     transports (wlyaserver, email, …)
-├── packages/wlya-desktop/      JVM REST :18080
-├── packages/wlya-server/       Node + Redis relay
-├── packages/bekon-call/        /v1/call WebSocket client
-├── packages/phone-manager/     Control HTTP :18082
-├── packages/phone-mcp/         MCP :18083
-├── tools/adb/gateway|phone     USB deploy
-├── tools/magisk/wlya-voice/    optional root audio (Line mode C)
+├── apps/desktop-ui/          Vue shell — Tunnels / Control / Voice
+├── apps/wlya-tunnel/       JVM tunnel host REST :18080
+├── apps/phone-control-api/ Control HTTP :18082
+├── apps/phone-control-mcp/   MCP :18083
+├── apps/android-gateway/             Gateway APK + magisk module + deploy script
+├── apps/android-phone/               Bekon Phone — Line client + deploy script
+├── packages/wlya-core/       Kotlin tunnel library
+├── packages/wlya-adapters/   transports (wlyaserver, email, …)
+├── packages/wlya-server/     Node + Redis relay
+├── packages/bekon-call/      /v1/call WebSocket client
+├── scripts/                    monorepo dev (stack:start, stack:stop)
+├── tools/                      run.sh, demo wizard
 └── docs/
 ```
 
@@ -118,12 +118,13 @@ bekon/
 
 | Doc | Contents |
 |-----|----------|
-| [`docs/USE-CASES.md`](docs/USE-CASES.md) | The three cases plus roadmap |
+| [`docs/USE-CASES.md`](docs/USE-CASES.md) | The four cases plus roadmap |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | How components connect, adapter duty |
 | [`docs/PROTOCOL.md`](docs/PROTOCOL.md) | HMAC, seed vs Secret, relay endpoints |
-| [`docs/CONTROL-PROTOCOL.md`](docs/CONTROL-PROTOCOL.md) | phone-manager queue API |
+| [`docs/CONTROL-PROTOCOL.md`](docs/CONTROL-PROTOCOL.md) | phone-control-api queue API |
 | [`docs/LINE.md`](docs/LINE.md) | Voice / GSM modes A/B/C |
 | [`docs/BRAND.md`](docs/BRAND.md) | Product names |
+| [`docs/COMMANDS.md`](docs/COMMANDS.md) | npm scripts — build, deploy, relay, lab |
 | [`packages/wlya-adapters/README.md`](packages/wlya-adapters/README.md) | Adding an adapter |
 | [`packages/wlya-server/README.md`](packages/wlya-server/README.md) | Relay deploy |
 

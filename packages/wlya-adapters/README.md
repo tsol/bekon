@@ -10,9 +10,9 @@ packages/wlya-adapters/<type>/
   adapter.json              metadata (type, label, defaults, factoryKind)
   <Type>Adapter.kt          runtime implementation (JVM + Android)
   ui-vue/
-    Form.vue                desktop workbench (auto-discovered by Vite glob)
+    Form.vue                desktop-ui (auto-discovered by Vite glob)
   ui-android/
-    <Type>AdapterForm.kt    Gateway Setup / Settings (apps/gateway/app)
+    <Type>AdapterForm.kt    Gateway Setup / Settings (apps/android-gateway/app)
 ```
 
 Example:
@@ -57,16 +57,16 @@ Task `generateAdapterRegistries` (`gradle/generate-adapters.gradle.kts` at repo 
 | Output | Location |
 |--------|----------|
 | `registerAllAdapters()` | `packages/wlya-core/build/generated/kotlin/.../GeneratedAdapterRegistry.kt` |
-| `GeneratedAndroidFormRegistry` | `apps/gateway/app/build/generated/kotlin/.../` |
+| `GeneratedAndroidFormRegistry` | `apps/android-gateway/app/build/generated/kotlin/.../` |
 
-`wlya-core` compiles adapter Kotlin from `packages/wlya-adapters/` but excludes `**/ui-android/**` and `**/ui-vue/**`; Android forms compile in `apps/gateway/app`.
+`wlya-core` compiles adapter Kotlin from `packages/wlya-adapters/` but excludes `**/ui-android/**` and `**/ui-vue/**`; Android forms compile in `apps/android-gateway/app`.
 
 ## Consumers
 
 | Platform | Discovery | Defaults |
 |----------|-----------|----------|
 | Desktop API | `registerAllAdapters()` → `Registry.list()` | `adapter.json` via codegen |
-| Vue workbench | `import.meta.glob('@wlya/adapters/*/ui-vue/Form.vue')` | API `GET /api/adapter-types` |
+| desktop-ui | `import.meta.glob('@wlya/adapters/*/ui-vue/Form.vue')` | API `GET /api/adapter-types` |
 | Android SetupActivity | `GeneratedAndroidFormRegistry` | form + saved SharedPreferences |
 
 ## Email adapter options (reference)
