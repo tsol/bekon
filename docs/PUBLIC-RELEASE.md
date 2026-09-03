@@ -140,10 +140,10 @@ ADB: `PATH` / `ANDROID_HOME`, не `/home/harry/Android/Sdk`. Room/secret тол
 
 ### Фаза 5 — GitHub
 
-> Публичный remote: [`https://github.com/tsol/bekon`](https://github.com/tsol/bekon). Не пушить сюда ветки этого клона — только orphan snapshot, см. [`PUBLISH.md`](PUBLISH.md).
+> Канон: [`https://github.com/tsol/bekon`](https://github.com/tsol/bekon). Старый приватный `tsol/phone-agent` не origin. См. [`PUBLISH.md`](PUBLISH.md).
 
-- [x] Новый repo `bekon` (пустой на GitHub, push orphan — см. PUBLISH.md).
-- [x] История: orphan first public commit + private mirror со старой историей (инструкция в `docs/PUBLISH.md`; `git filter-repo` на единственной копии — не делать).
+- [x] Новый repo `bekon` (orphan `main` на GitHub).
+- [x] Этот клон трекает публичный `main`; приватную историю на GitHub не пушить.
 - [x] CI: `.github/workflows/ci.yml` — `wlya-core:test`, `npm run build`, `docker compose config` для relay; без Android SDK / USB (assemble в CI не включён).
 - [ ] Flavors Play vs GitHub — не блокер первого тега, но не смешивать в README «удалённо жми бабушкин UI» и магазин.
 
