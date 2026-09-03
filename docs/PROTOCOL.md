@@ -91,6 +91,7 @@ Legacy stores with only `"seed"` load correctly as `channel`.
 ## Further reading
 
 - Architecture overview: [`ARCHITECTURE.md`](ARCHITECTURE.md)
-- Control commands (inside encrypted tunnel): [`control-protocol.md`](control-protocol.md)
-- Voice / GSM product notes: [`line.md`](line.md)
+- Control commands (inside encrypted tunnel): [`CONTROL-PROTOCOL.md`](CONTROL-PROTOCOL.md)
+- Voice / GSM: [`LINE.md`](LINE.md)
+- Use cases: [`USE-CASES.md`](USE-CASES.md)
 - Relay deploy and env vars: [`packages/wlya-server/README.md`](../packages/wlya-server/README.md)

@@ -1,6 +1,6 @@
 # Architecture
 
-How Bekon Suite pieces connect. Naming rules: [`BRAND.md`](BRAND.md). Wire format: [`PROTOCOL.md`](PROTOCOL.md).
+How Bekon Suite pieces connect. Why it exists: [`USE-CASES.md`](USE-CASES.md). Wire format: [`PROTOCOL.md`](PROTOCOL.md).
 
 ---
 
@@ -47,6 +47,22 @@ How Bekon Suite pieces connect. Naming rules: [`BRAND.md`](BRAND.md). Wire forma
 
 **`packages/wlya-adapters`** are compile-time plug-ins. Each adapter implements transport in/out; `wlyaserver` talks to the public relay. Codegen shares form UI between desktop (Vue) and Gateway (`SetupActivity`).
 
+### Adapter duty
+
+Native adapters: **wlya (`wlyaserver`) is primary**; other types default to **backup**.
+
+- Effective primary (first running `role=primary`, else first backup) **never sleeps**: normal poll and send.
+- Backup sleeps by default: poll `sleepPollMs ± sleepJitterMs` (~one hour), **no send**.
+- Foreign inbound on that backup (after `seenIds`, not echo of our send) → backup becomes **active**.
+- Active until `idleMs` (default 10 min) since last foreign inbound. Empty polls do not sleep it. Our own sends do not extend idle.
+- `poll FAILED` on the effective primary → all running backups go active immediately. When primary is healthy again and backup idle expires, backup sleeps.
+
+Form section **Polling / role**: `role`, `pollIntervalMs`, `sleepPollMs`, `sleepJitterMs`, `idleMs`. Coordinator: `AdapterDutyCoordinator`. UI: badges and countdown.
+
+Typical case: relay blocked, you send via email from desktop → within about an hour the phone wakes email → that channel runs at full speed while foreign packets continue.
+
+Lua script adapters (Telegram, Sheets, stego-email without a new APK) are planned — [`USE-CASES.md`](USE-CASES.md).
+
 ### Channel id vs payload secret
 
 | Concept | Code / JSON | UI label | Used for |
@@ -87,7 +103,7 @@ Deploy your own instance; example hostnames in docs are illustrations, not a req
 
 **`packages/phone-manager`** (`:18082`) sits between the workbench Control tab and a running tunnel. It does not talk to ADB directly: it enqueues gesture/screenshot commands, `wlya-desktop` forwards them through the tunnel to the Gateway APK, and results return on the same channel.
 
-**`packages/phone-mcp`** (`:18083/mcp`) exposes a compact MCP tool surface over phone-manager for agents (look, tap, nav, …). Spec: [`control-protocol.md`](control-protocol.md).
+**`packages/phone-mcp`** (`:18083/mcp`) exposes a compact MCP tool surface over phone-manager for agents (look, tap, nav, …). Spec: [`CONTROL-PROTOCOL.md`](CONTROL-PROTOCOL.md).
 
 Env: `WLYA_TUNNEL_URL` (desktop base), `PORT`, `HOST`.
 
@@ -105,7 +121,7 @@ Both are Android apps built from this monorepo; they target different roles.
 | Deploy script | `tools/adb/gateway` | `tools/adb/phone` |
 | Workbench tab | Tunnels (config) + Control (queue) | Voice (companion) |
 
-One physical phone can run Gateway with tunnel + Control; a second device or the same device in another profile may run Bekon Phone for Line. Product modes are documented in [`BRAND.md`](BRAND.md) — Play flavor is tunnel + radio only; full Control is the GitHub APK.
+One physical phone can run Gateway (tunnel + Control); another device (or profile) may run Bekon Phone for Line. Names: [`BRAND.md`](BRAND.md).
 
 ---
 
@@ -123,7 +139,7 @@ These are **different namespaces** on the same relay host:
 
 Joining voice does not automatically join a tunnel channel, and vice versa. Configure both in the workbench or app settings.
 
-Line audio modes (walkie, acoustic GSM, root ALSA bridge): [`line.md`](line.md). Optional Magisk module: [`tools/magisk/wlya-voice/`](../tools/magisk/wlya-voice/README.md).
+Line audio modes (walkie, acoustic GSM, root ALSA bridge): [`LINE.md`](LINE.md). Optional Magisk module: [`tools/magisk/wlya-voice/`](../tools/magisk/wlya-voice/README.md).
 
 ---
 
@@ -141,8 +157,9 @@ Relay is started separately (`packages/wlya-server/docker compose` or `scripts/r
 
 ## Related docs
 
+- [`USE-CASES.md`](USE-CASES.md) — jobs to be done and roadmap
 - [`PROTOCOL.md`](PROTOCOL.md) — headers, query params, HMAC
-- [`control-protocol.md`](control-protocol.md) — Control queue kinds
-- [`line.md`](line.md) — GSM / voice roadmap
+- [`CONTROL-PROTOCOL.md`](CONTROL-PROTOCOL.md) — Control queue kinds
+- [`LINE.md`](LINE.md) — GSM / voice modes
 - [`packages/wlya-server/README.md`](../packages/wlya-server/README.md) — relay deploy
 - [`packages/wlya-adapters/README.md`](../packages/wlya-adapters/README.md) — new adapter

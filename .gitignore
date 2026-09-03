@@ -33,4 +33,5 @@ packages/phone-mcp/.phone_mcp.pid
 store.json
 *.tgz
 root-phone/**/AGENT-HANDOFF.md
+root-phone/**/HANDOFF.md
 root-phone/**/DEVICE.md

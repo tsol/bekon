@@ -1,22 +1,19 @@
-# Redmi 9 — M2004J19C (galahad_ru)
+# Redmi 9 — M2004J19C (`galahad_ru`)
 
-MediaTek MT6768, MIUI V12.0.3.0.QJCRUXM. **Активный** телефон для root + voice mode C.
+MediaTek MT6768, MIUI V12. Lab notes for root + Line mode C.
 
 | | |
 |---|---|
-| Профиль | [DEVICE.md](DEVICE.md) |
 | Recon | [recon/](recon/) |
-| Firmware | [firmware/](firmware/) (stock boot.img сюда) |
-| Build output | [out/](out/) |
+| Firmware (local) | `firmware/` (gitignored) — drop stock `boot.img` here |
+| Build output | `out/` (gitignored) |
 
-## План
+## Outline
 
-1. Режим A/B без root (walkie / acoustic probe).
-2. OEM unlock + Mi Account + ожидание 168 ч.
-3. Stock `boot.img` → Magisk patch → Mi Unlock → `fastboot flash boot`.
-4. [../magisk/wlya-voice/](../magisk/wlya-voice/) через `../scripts/pack-module.sh`.
-
-## Команды
+1. Modes A/B without root (walkie / acoustic).
+2. OEM unlock + Mi Account + **168 hour** wait.
+3. Patch stock `boot.img` with Magisk → Mi Unlock → `fastboot flash boot`.
+4. Flash [`../../tools/magisk/wlya-voice/`](../../tools/magisk/wlya-voice/) via `../scripts/pack-module.sh`.
 
 ```bash
 ./root-phone/scripts/status.sh
@@ -24,4 +21,4 @@ MediaTek MT6768, MIUI V12.0.3.0.QJCRUXM. **Активный** телефон д�
 ./root-phone/scripts/install-magisk-apk.sh
 ```
 
-Стандартный Xiaomi-путь — **без SPD**, риск brick намного ниже itel.
+Standard Xiaomi path — no SPD dongle. Brick risk is much lower than Unisoc/itel recovery.

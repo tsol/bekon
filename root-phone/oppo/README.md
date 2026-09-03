@@ -1,10 +1,9 @@
 # OPPO A96 CPH2333
 
-MediaTek нет — Qualcomm SM6225. Активный кандидат, но **TR/EUEX unlock под вопросом**.
+Qualcomm SM6225. Lab candidate; **TR/EUEX bootloader unlock is often unavailable**.
 
 | | |
 |---|---|
-| Профиль | [DEVICE.md](DEVICE.md) |
 | Recon | [recon/](recon/) |
 
 ```bash
@@ -12,4 +11,4 @@ MediaTek нет — Qualcomm SM6225. Активный кандидат, но **T
 ./root-phone/scripts/recon.sh oppo
 ```
 
-См. [DEVICE.md](DEVICE.md) — сравнение с Redmi и риски региона TR.
+Compare unlock options with Redmi before committing to this chassis for mode C.

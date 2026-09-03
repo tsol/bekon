@@ -1,66 +1,18 @@
-# Brand
+# Names
 
-**WLYA** — провод. **Bekon** — то, что осталось в комнате.
+**WLYA** is the wire (tunnel, adapters, relay). **White List Your Ass** — a channel you keep when the official internet dropped you. **Bekon** is the device in the room.
 
-Слоган: **Be Konnected.**
+Slogan: **Be Konnected.** Line: *WLYA in the wire. Bekon in the room.*
 
----
+| Name | What to call it |
+|------|-----------------|
+| WLYA Tunnel | Transport. Expansion: White List Your Ass (use case 4). Wire JSON still uses `seed` (do not rename). UI: **Secret**. |
+| Bekon Control | Full Gateway: screen, gestures, MCP. Package `pro.potoki.bekon`. |
+| Bekon Line | GSM / walkie. Client app **Bekon Phone** (`pro.potoki.bekon.phone`). |
+| Bekon Suite | This monorepo. |
 
-## WLYA
+Kotlin core stays `com.wlya.core` / `com.wlya.desktop`. Device packages stay `pro.potoki.bekon.*`.
 
-Транспорт: туннель, адаптеры, duty, Lua-хост как канал. Не продукт «телефон».
+Do not title the store listing “Agentic Phone”, “Hermes Phone”, or “Hermes Agent”. Hermes is an agent that *uses* Bekon (use case 3), not the APK name.
 
-Расшифровка (внутренняя, не для карточки Play):
-
-**Whitelist You ASS** — в сторону Роскомнадзора: канал, который ты себе оставляешь, когда официальный интернет выкидывает.
-
-В UI и доках протокола: просто **WLYA**. Домен/relay может оставаться `wlya.*`.
-
----
-
-## Bekon
-
-От *beacon* (маяк), славянская транскрипция; бонус — бекон/сало. Наружу достаточно маяка: устройство светится, до него достучаться. Шутка про сало — для своих.
-
-Имя приложения, APK, вкладки пульта, «трубка у бабушки». Не Agent, не Hermes Phone.
-
-**Bekon Framework** — только README / org / этот файл: зонтик из провода + режимов устройства. На иконке стора — **Bekon**.
-
----
-
-## Что внутри зонтика
-
-Одно устройство, четыре режима (не четыре бренда):
-
-1. **WLYA** — канал (всегда).
-2. **Agentic phone** — harness/агент жмёт UI (жесты, экран, IME). GitHub / full APK.
-3. **GSM gateway** — симка дома, звонки «как из страны», из которой выгнали. Личный якорь продукта.
-4. **Колонка** — уши и рот агента в комнате (PTT / ассистент), без обязательных жестов.
-
-Связка: телефон не в кармане, но присутствие есть. Квартира, стол агента, тумбочка — один класс.
-
----
-
-## Play vs остальное
-
-| | Имя | Что внутри |
-|--|------|------------|
-| Google Play | Bekon | туннель + рация/колонка; без a11y-жестов, SMS-агента, скрытого IME |
-| GitHub APK | Bekon (другое `applicationId`) | полный device control + агент |
-
-В карточке Play не рекламировать GitHub как «включите удалённое управление». Исходники — как исходники.
-
-Разные id, например `pro.potoki.bekon` (сейчас full APK) и позже `pro.potoki.bekon.device` при разделении flavor.
-
-Пакеты в коде: устройство `pro.potoki.bekon`, ядро туннеля `com.wlya.core` / `com.wlya.desktop`.
-
----
-
-## Как писать
-
-- «Туннель WLYA», «устройство Bekon».
-- Не: Hermes Agent, Hermes Phone, Agentic Phone как title стора.
-- Agentic phone — описание режима full-сборки, не имя на иконке.
-- Be Konnected — подзаголовок, не имя APK.
-
-*WLYA in the wire. Bekon in the room.*
+A future Play build is tunnel + radio only (no a11y remote control) under a **different** `applicationId`. The GitHub APK is the full Control build. Do not advertise GitHub as “turn on remote control” inside a Play listing. Keep the WLYA expansion off the Play card if the store rejects it; it belongs in this repo and use case 4.

@@ -2,7 +2,7 @@
 
 HTTP facade over phone-manager (`:18082`) for agent tooling. One process, one phone, compact looks, screenshots as file paths.
 
-Agents should call this server. Raw queue protocol: [`docs/control-protocol.md`](../../docs/control-protocol.md).
+Agents should call this server. Raw queue protocol: [`docs/CONTROL-PROTOCOL.md`](../../docs/CONTROL-PROTOCOL.md).
 
 The Gateway APK already wakes the display (`Wake if idle`, default 3000 ms). This server does **not** tap the screen to wake it.
 
@@ -64,5 +64,5 @@ Every mutating call ends with a fresh snapshot. Never read `/state.lastSnapshot`
 - no zero-distance swipe
 - no vertical swipe on the home screen (app drawer)
 - `type` requires `ref` (or x,y): tap the field, then `inputMode=keys`
-- `"Главный экран"` is not treated as home
+- `"Главный экран"` (Russian launcher “Home screen” label) is not treated as home
 - page swipes stay near y=500

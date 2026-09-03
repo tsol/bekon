@@ -1,7 +1,7 @@
 # WLYA transport adapters (plug-in layout)
 
 Each adapter is a self-contained folder under repo-root `packages/wlya-adapters/<type>/`.
-Adding a new adapter should **not** require edits to phone-agent, Vue UI, or `Registry.kt` — only files in this tree plus a Gradle rebuild (codegen).
+Adding a new adapter should **not** require edits to the Gateway app, Vue UI, or `Registry.kt` — only files in this tree plus a Gradle rebuild (codegen).
 
 ## Folder layout
 
@@ -12,7 +12,7 @@ packages/wlya-adapters/<type>/
   ui-vue/
     Form.vue                desktop workbench (auto-discovered by Vite glob)
   ui-android/
-    <Type>AdapterForm.kt    phone-agent Settings tab (apps/gateway/app)
+    <Type>AdapterForm.kt    Gateway Setup / Settings (apps/gateway/app)
 ```
 
 Example:
@@ -40,7 +40,7 @@ packages/wlya-adapters/email/
    }
    ```
    - `factoryKind: "simple"` — factory `(id, config) -> AdapterClass(id, config)`
-   - `factoryKind: "mock"` — только для `MockAdapter` (LocalStore + storePath)
+   - `factoryKind: "mock"` — `MockAdapter` only (LocalStore + storePath)
 3. Implement `MytypeAdapter.kt` extending `BaseAdapter`
 4. Add `ui-vue/Form.vue` — props `initialConfig`, emit `config`
 5. Add `ui-android/MytypeAdapterForm.kt` implementing `AdapterAndroidForm` (package `com.wlya.core.adapters.mytype.ui.android`)

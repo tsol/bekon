@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SRC="$ROOT/magisk/wlya-voice"
-OUT="$ROOT/out"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+SRC="$ROOT/tools/magisk/wlya-voice"
+OUT="$ROOT/root-phone/out"
 mkdir -p "$OUT"
 ZIP="$OUT/wlya-voice.zip"
 rm -f "$ZIP"

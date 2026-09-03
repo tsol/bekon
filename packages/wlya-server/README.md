@@ -1,46 +1,44 @@
-# WLYA-Server
+# WLYA Server
 
-Публичный message relay: **Node.js + Redis**, Docker-контейнер. Без Java/Kotlin/`wlya-core`.
+Public message relay: **Node.js + Redis**, typically Docker. No Java/Kotlin/`wlya-core` in this package.
 
-Клиентский адаптер (Kotlin) живёт отдельно: [`../wlya-adapters/wlyaserver/`](../wlya-adapters/wlyaserver/).
-
-Домены (независимые инстансы): `wlya.potoki.pro` / `wlya2.potoki.pro`. URL задаётся в клиентском адаптере.
+Kotlin client adapter: [`../wlya-adapters/wlyaserver/`](../wlya-adapters/wlyaserver/). Set the relay URL in that adapter (or in voice clients). Example hostnames below are placeholders — run **your** instance.
 
 ```
-клиент (wlya-adapters/wlyaserver)
+client (wlya-adapters/wlyaserver)
         HTTPS / WS + HMAC
-wlya-server (этот каталог)
+wlya-server (this directory)
         Redis TTL
 ```
 
-Сервер хранит только opaque blob. Payload не расшифровывает.
+The server stores opaque blobs only. It does not decrypt tunnel payloads.
 
-Рабочий каталог везде ниже: `packages/wlya-server/` (этот README).
+Working directory for commands: `packages/wlya-server/`.
 
-Требования: **Node 20+**, **npm**, **Docker + Compose** (для контейнера), **Redis 7** (если без Docker).
+Requirements: **Node 20+**, **npm**, **Docker Compose** (for the container stack), **Redis 7** (if you run without Docker).
 
-Переменные окружения:
-
-| Переменная | Default | Смысл |
-|------------|---------|--------|
+| Variable | Default | Meaning |
+|----------|---------|---------|
 | `PORT` | `18081` | HTTP listen |
 | `REDIS_URL` | `redis://127.0.0.1:6379` | Redis |
-| `MSG_TTL_SEC` | `600` | TTL blob |
-| `CURSOR_TTL_SEC` | `900` | TTL курсора |
-| `HMAC_SKEW_SEC` | `120` | допуск timestamp |
-| `READ_RATE` | `10` | GET/sec на client |
-| `WRITE_RATE` | `5` | POST/sec на client |
+| `MSG_TTL_SEC` | `600` | Blob TTL |
+| `CURSOR_TTL_SEC` | `900` | Cursor TTL |
+| `HMAC_SKEW_SEC` | `120` | Timestamp skew |
+| `READ_RATE` | `10` | GET/sec per client |
+| `WRITE_RATE` | `5` | POST/sec per client |
 
-Проверки:
+Checks:
 
-- `GET /health` → `{ "ok": true }` (Redis жив; иначе 503)
+- `GET /health` → `{ "ok": true }` (503 if Redis is down)
 - `GET /metrics` → Prometheus text
+
+Wire auth: [`docs/PROTOCOL.md`](../../docs/PROTOCOL.md).
 
 ---
 
-## Сборка
+## Build
 
-### Локально (без Docker)
+### Local (no Docker)
 
 ```bash
 cd /path/to/bekon/packages/wlya-server
@@ -49,40 +47,37 @@ npm test
 npm run build          # tsc → dist/server.js
 ```
 
-Артефакт: `dist/` + `node_modules` (prod). Старт: `REDIS_URL=... npm start`.
+Artifact: `dist/` + production `node_modules`. Start: `REDIS_URL=... npm start`.
 
-### Docker-образ
+### Docker image
 
 ```bash
 cd /path/to/bekon/packages/wlya-server
 docker compose build
-# или точечно:
+# or:
 docker build -t wlya-server:local .
 ```
 
-Multi-stage: build (tsc) → runtime `node:20-alpine` + `npm ci --omit=dev`. Compose поднимает ещё `redis:7-alpine`.
+Multi-stage: `tsc` → `node:20-alpine` + `npm ci --omit=dev`. Compose also starts `redis:7-alpine`.
 
 ---
 
-## Запуск
+## Run
 
-### Dev с хоста (start / stop)
-
-Из корня `bekon`:
+### Dev from the repo root
 
 ```bash
 ./packages/wlya-server/scripts/relay start              # http://127.0.0.1:18081
-PORT=18082 ./packages/wlya-server/scripts/relay start    # другой порт
+PORT=18082 ./packages/wlya-server/scripts/relay start
 ./packages/wlya-server/scripts/relay status
-./packages/wlya-server/scripts/relay stop               # Redis не трогает
+./packages/wlya-server/scripts/relay stop               # leaves Redis running
 ```
 
-Скрипт: если Redis на `:6379` уже есть — использует его, иначе поднимает docker-контейнер `wlya-redis`. Node: `npm run dev:nowatch` (`tsx` без inotify — на этой машине `tsx watch` часто падает с ENOSPC). Лог: `packages/wlya-server/.dev/server.log`. Для hot-reload вручную: `npm run dev`.
+If Redis already listens on `:6379`, the script uses it; otherwise it starts a `wlya-redis` container. Node: `npm run dev:nowatch` (`tsx watch` can hit ENOSPC). Log: `packages/wlya-server/.dev/server.log`. Hot reload: `npm run dev`.
 
-### Dev вручную (hot reload, Redis на хосте)
+### Dev with Redis on the host
 
 ```bash
-# отдельный Redis, если ещё нет
 docker run -d --name wlya-redis -p 6379:6379 redis:7-alpine
 
 cd /path/to/bekon/packages/wlya-server
@@ -90,9 +85,9 @@ npm ci
 REDIS_URL=redis://127.0.0.1:6379 npm run dev
 ```
 
-Слушает `http://127.0.0.1:18081`.
+Listens on `http://127.0.0.1:18081`.
 
-### Prod-like на машине (Docker Compose)
+### Prod-like (Docker Compose)
 
 ```bash
 cd /path/to/bekon/packages/wlya-server
@@ -102,37 +97,36 @@ curl -sS http://127.0.0.1:18081/health
 docker compose logs -f app
 ```
 
-Стоп: `docker compose down` (volume `redis_data` остаётся). Полный сброс данных: `docker compose down -v`.
+Stop: `docker compose down` (volume `redis_data` stays). Wipe data: `docker compose down -v`.
 
-Порт с хоста: **18081 → app:18081**. TLS в compose нет — снаружи обычно nginx/caddy.
+Host port **18081 → app:18081**. Compose has no TLS — put nginx/Caddy in front.
 
 ---
 
-## Деплой по SSH (теория)
+## Deploy over SSH
 
-Два независимых инстанса, без общего Redis: например `wlya.potoki.pro` и `wlya2.potoki.pro`. На каждом — свой compose. Клиент выбирает URL в адаптере.
+Independent instances, **no shared Redis**. Each host has its own compose. The client picks the URL.
 
-Идея: на сервере каталог с этим проектом (git clone или rsync), Docker Compose, reverse proxy на 443.
+On the server: this package (git clone or rsync), Docker Compose, reverse proxy on 443.
 
-### 1. Один раз на сервере
+### 1. Once on the server
 
-Нужны Docker Engine + Compose plugin, git (или rsync с ноутбука).
+Docker Engine + Compose plugin, git (or rsync).
 
 ```bash
-ssh user@wlya.potoki.pro
-# docker + compose уже стоят
+ssh user@relay.example
 sudo mkdir -p /opt/wlya-server
 sudo chown "$USER":"$USER" /opt/wlya-server
 ```
 
-TLS: DNS A-запись на IP сервера. Сертификат — certbot/caddy. Приложение слушает только localhost:18081.
+TLS: DNS A record, certbot/Caddy. App listens on localhost:18081.
 
-Пример nginx (после того как compose слушает 18081):
+Example nginx (after compose is up):
 
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name wlya.potoki.pro;
+    server_name relay.example;
     # ssl_certificate ...;
     # ssl_certificate_key ...;
 
@@ -150,59 +144,52 @@ server {
 }
 ```
 
-Опционально не публиковать 18081 наружу: в `docker-compose.yml` заменить `"18081:18081"` на `"127.0.0.1:18081:18081"`.
+Optionally bind compose to loopback only: `"127.0.0.1:18081:18081"`.
 
-### 2. Выкат кода
+### 2. Ship code
 
-**Вариант A — git на сервере**
+**A — git on the server** (whole `bekon` clone): compose from `packages/wlya-server/`.
 
 ```bash
-# с ноутбука
-ssh user@wlya.potoki.pro 'cd /opt/wlya-server && git pull --ff-only'
-ssh user@wlya.potoki.pro 'cd /opt/wlya-server/wlya-server && docker compose up -d --build'
+ssh user@relay.example 'cd /opt/wlya-server && git pull --ff-only'
+ssh user@relay.example 'cd /opt/wlya-server/packages/wlya-server && docker compose up -d --build'
 ```
 
-Если репозиторий — весь `bekon`, compose запускать из подкаталога `packages/wlya-server/`.
-
-**Вариант B — rsync только этого каталога**
+**B — rsync this package only**
 
 ```bash
-# с ноутбука, из wlya-tunnel/
 rsync -az --delete \
   --exclude node_modules --exclude dist \
-  ./wlya-server/ user@wlya.potoki.pro:/opt/wlya-server/
+  ./packages/wlya-server/ user@relay.example:/opt/wlya-server/
 
-ssh user@wlya.potoki.pro 'cd /opt/wlya-server && docker compose up -d --build'
+ssh user@relay.example 'cd /opt/wlya-server && docker compose up -d --build'
 ```
 
-`--delete` снимает лишние файлы на сервере; не используй, если там лежат секреты вне git.
+Do not use `--delete` if the server holds secrets outside git.
 
-Второй хост — те же команды с `user@wlya2.potoki.pro`.
-
-### 3. Проверка после выката
+### 3. After deploy
 
 ```bash
-ssh user@wlya.potoki.pro 'curl -sS http://127.0.0.1:18081/health'
-curl -sS https://wlya.potoki.pro/health
-ssh user@wlya.potoki.pro 'cd /opt/wlya-server && docker compose ps && docker compose logs --tail=80 app'
+ssh user@relay.example 'curl -sS http://127.0.0.1:18081/health'
+curl -sS https://relay.example/health
+ssh user@relay.example 'cd /opt/wlya-server && docker compose ps && docker compose logs --tail=80 app'
 ```
 
-Откат: предыдущий git commit + снова `docker compose up -d --build`, либо `docker compose down` и поднять старый тег образа, если тегируешь сборки (`wlya-server:2026-08-12`).
+Rollback: previous git commit + `docker compose up -d --build`, or retag images.
 
-### 4. Что не делать
+### 4. Do not
 
-- Не шарить один Redis между `wlya` и `wlya2`.
-- Не открывать Redis в интернет (в compose порт Redis на хост не проброшен — так и оставить).
-- Не класть seed в URL/логи; HMAC заголовки не логировать целиком.
+- Share one Redis across two public hostnames.
+- Expose Redis to the internet (compose does not publish Redis — keep it that way).
+- Put the channel id in URLs or logs; do not log full HMAC headers.
 
 ---
 
 ## API
 
+Auth on every request except `/health` and `/metrics`:
 
-Auth на каждый запрос (кроме `/health`, `/metrics`):
-
-`X-WLYA-Seed` — **channel id** (очередь Redis + HMAC). Имя заголовка историческое: это не AES-секрет туннеля. Payload шифруется на клиентах отдельным `secret`; сервер его не видит.
+`X-WLYA-Seed` is the **channel id** (Redis queue + HMAC). The header name is historical — it is not the AES payload key. Clients encrypt with `secret`; this server never sees plaintext.
 
 ```
 X-WLYA-Seed: <channel>
@@ -216,11 +203,11 @@ key = SHA-256(channel)                    # raw 32 bytes
 sig = HMAC-SHA256(key, channel + timestamp + body)
 ```
 
-`body` — сырой POST body; для GET пустая строка. Отклонение при неверном HMAC или `|now - ts| > 120s`.
+`body` is the raw POST body; GET uses an empty string. Reject on bad HMAC or `|now - ts| > 120s`.
 
 ### GET `/v1/messages`
 
-Query: `cursor=<offset>` (опционально).
+Query: `cursor=<offset>` (optional).
 
 ```json
 {
@@ -231,7 +218,7 @@ Query: `cursor=<offset>` (опционально).
 }
 ```
 
-TTL сообщений: 10 мин. Курсор в Redis: `seed+client → offset`, TTL 15 мин. Нет курсора — последние 10 сообщений.
+Message TTL: 10 min. Cursor in Redis: `seed+client → offset`, TTL 15 min. No cursor → last 10 messages.
 
 ### POST `/v1/messages`
 
@@ -239,49 +226,49 @@ TTL сообщений: 10 мин. Курсор в Redis: `seed+client → offse
 { "messages": [ { "id": "<uuid>", "data": "<base64>", "ts": 1234567890 } ] }
 ```
 
-Ответ: `{ "stored": 3 }`
+Response: `{ "stored": 3 }`
 
-Лимит тела: Fastify `bodyLimit` 4 MiB. nginx `client_max_body_size 8m`.
+Body limit: Fastify `bodyLimit` 4 MiB. nginx `client_max_body_size 8m`.
 
-Rate limit: 10 read/sec, 5 write/sec на `(seed, client)`. Иначе `429`.
+Rate limit: 10 read/sec, 5 write/sec per `(seed, client)` or `429`.
 
 ### GET `/v1/stream` (SSE)
 
-Тот же auth. Event `message` на каждый новый blob канала. Клиент сам делает POST.
+Same auth. Event `message` for each new blob. The client still POSTs.
 
 ### WS `/v1/call`
 
-Subprotocol `wlya-call/1.0`, те же заголовки (или query `seed`, `client`, `ts`, `sig` если клиент не умеет WS headers).
+Subprotocol `wlya-call/1.0`, same headers (or query `seed`, `client`, `ts`, `sig` if the client cannot set WS headers).
 
-Первый JSON: `{ "type": "join", "room": "<id>" }`. `join` только серверный. Остальной JSON (`type !== "join"`) и бинарные кадры (первый байт не `0x7b`) релеятся в комнату as-is, без эха отправителю. PCM: `[0xa1][int16 LE samples]`.
+First JSON: `{ "type": "join", "room": "<id>" }`. Only the server handles `join`. Other JSON (`type !== "join"`) and binary frames (first byte not `0x7b`) are relayed to the room as-is, without echoing to the sender. PCM: `[0xa1][int16 LE samples]`.
 
-Room живёт, пока есть участники.
+A room lives while it has members.
 
 ## Redis
 
-Ключи используют `sha256(channel)` hex (`X-WLYA-Seed`), не сырой channel и не AES-secret:
+Keys use `sha256(channel)` hex (`X-WLYA-Seed`), not the raw channel and not the AES secret:
 
 ```
 wlya:seq:{h}                 — monotonic offset
 wlya:msg:{h}:{offset}        — JSON blob, TTL 10min
 wlya:idx:{h}                 — sorted set offset→offset, TTL 10min
 wlya:cursor:{h}:{client}     — last read offset, TTL 15min
-wlya:pub:{h}                 — pub/sub для SSE
+wlya:pub:{h}                 — pub/sub for SSE
 wlya:ratelimit:r:{h}:{c}     — read window
 wlya:ratelimit:w:{h}:{c}     — write window
 ```
 
-## Криптография
+## Crypto
 
-| Где | Что |
-|-----|-----|
-| Этот сервер | только HMAC auth, blob as-is |
-| Клиент (`Crypto.kt`) | AES-256-GCM от **secret** (если пуст — channel), PBKDF2 salt `tunnel-v1`, 100_000 iter |
+| Where | What |
+|-------|------|
+| This server | HMAC auth only; blobs as-is |
+| Client (`Crypto.kt`) | AES-256-GCM from **secret** (if blank — channel), PBKDF2 salt `tunnel-v1`, 100_000 iter |
 
-## Решения
+## Design notes
 
-1. Seed в заголовке, не в URL
-2. HMAC на каждый запрос
-3. Redis TTL — auto-cleanup
-4. WS PCM — бинарный relay без обработки
-5. Инстансы независимы; клиент выбирает URL
+1. Channel id in a header, not in the URL
+2. HMAC on every request
+3. Redis TTL for cleanup
+4. WS PCM is a dumb binary relay
+5. Instances are independent; the client chooses the URL

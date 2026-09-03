@@ -2,85 +2,94 @@
 
 **WLYA in the wire. Bekon in the room.**
 
-One monorepo for a resilient tunnel, a device gateway at home, and a GSM voice anchor. Self-host the relay — you control the endpoint. Example deployments may use `wlya.potoki.pro` as an illustration only; production needs your own `wlya-server` instance.
+Self-host the relay. You own the endpoint. Example hostnames in docs are illustrations only.
 
-Canonical naming: [`docs/BRAND.md`](docs/BRAND.md)
+---
+
+## Use cases
+
+Why this exists. More detail and what is still planned: [`docs/USE-CASES.md`](docs/USE-CASES.md).
+
+### 1. Emigrant gateway
+
+Leave home, leave a **rooted Android with a local SIM** at grandma’s (or any trusted address). Call out and take calls **through that handset** — military commissariat, interior ministry, prison service, banks, whoever still only believes a domestic number.
+
+The pipe is **Bekon Line**: GSM audio over your relay, plus the WLYA tunnel so the device stays reachable when ordinary internet does not.
+
+### 2. Give your agent a phone
+
+Plug MCP into an agent and let it **own a real Android**: tap, swipe, launch apps, pay with your card, doomscroll Instagram, sit in settings until something works.
+
+That is **Bekon Control** — Gateway APK + `phone-manager` + `phone-mcp`. The agent does not ADB the device; it queues work through the tunnel.
+
+### 3. Old Android as a smart speaker
+
+Fire Alice and Alexa. Talk to **Hermes** (or any agent) from a dusty phone on the table — walkie / room audio, no cloud speaker required.
+
+Today this is Line walkie + the same tunnel Control uses. Always-on “speaker in the room” is on the roadmap in [`docs/USE-CASES.md`](docs/USE-CASES.md).
+
+### 4. White List Your Ass
+
+**WLYA** = White List Your Ass. Drive the phone through **email**, a **spreadsheet**, **MAX**, or any custom tunnel adapter — including from a parking garage when the “real” internet is gone. Stack as many backup adapters as you want so you do not lose the line home.
+
+Duty already fails over from the fast relay to sleeping backups ([`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#adapter-duty)). Lua adapters you can add without a new APK are on the roadmap.
 
 ---
 
 ## Products
 
-### WLYA Tunnel
+| Layer | Name | Role |
+|-------|------|------|
+| Transport | **WLYA Tunnel** | HMAC channel, adapters, duty failover. **White List Your Ass.** Protocol `seed`; UI **Secret**. |
+| Remote UI | **Bekon Control** | Screen, gestures, files, MCP. Full Gateway APK (`pro.potoki.bekon`). |
+| GSM / voice | **Bekon Line** | Home SIM as an anchor. Client: **Bekon Phone**. |
+| Umbrella | **Bekon Suite** | Wire + device in the room. Tagline: Be Konnected. |
 
-The transport layer: encrypted message channel with HMAC auth, plug-in adapters (email, HTTP relay, mock, …), and duty failover. WLYA is the protocol and UI name — a wire that stays up when ordinary paths do not. Desktop JVM, Android Gateway, and adapters all share `wlya-core`.
-
-### Bekon Control
-
-Full device gateway for agents: screen capture, accessibility tree, gestures, file push, and MCP tools over `phone-manager`. Distributed as the GitHub / full Gateway APK (`pro.potoki.bekon`) plus the workbench Control tab. Not the trimmed Play build — see [`docs/BRAND.md`](docs/BRAND.md).
-
-### Bekon Line
-
-GSM anchor at home: a rooted phone with a SIM in your country, bridging voice and walkie-talkie audio over WebSocket. The desktop Voice tab and **Bekon Phone** client join the same room on your relay. Dial and acoustic modes are documented in [`docs/line.md`](docs/line.md).
-
----
-
-## How it fits together
+One device, several modes — not four store brands. Names: [`docs/BRAND.md`](docs/BRAND.md).
 
 ```
                     ┌─────────────────────────────────────┐
-                    │  Your laptop — Bekon Workbench      │
-                    │  Tunnels · Control · Voice tabs     │
-                    │  wlya-desktop :18080              │
-                    │  phone-manager :18082             │
+                    │  Laptop — Bekon Workbench           │
+                    │  Tunnels · Control · Voice          │
+                    │  wlya-desktop :18080                │
+                    │  phone-manager :18082               │
                     └──────────────┬──────────────────────┘
                                    │
               tunnel (HMAC)        │        voice room (HMAC join)
-              wlyaserver adapter   │        /v1/call WebSocket
                                    │
                     ┌──────────────▼──────────────────────┐
-                    │  WLYA relay — wlya-server         │
-                    │  Redis HTTP inbox + /v1/call        │
-                    │  (docker compose, your domain)    │
+                    │  Your relay — wlya-server           │
+                    │  Redis inbox + /v1/call             │
                     └──────────────┬──────────────────────┘
-                                   │
          ┌─────────────────────────┼─────────────────────────┐
-         │                         │                         │
          ▼                         ▼                         ▼
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│ Gateway APK     │     │ Bekon Phone     │     │ Other tunnel    │
-│ at home         │     │ (Line client)   │     │ peers (desktop) │
-│ tunnel + Control│     │ voice / GSM     │     │                 │
-│ pro.potoki.bekon│     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-   phone on the table       handset / second        laptop elsewhere
+   Gateway APK              Bekon Phone                 Other tunnel
+   home device              Line handset                peers
 ```
 
-Tunnel traffic and voice rooms are separate paths on the same relay. Tunnel uses the channel id (`seed` in protocol, **Secret** in UI) for HMAC and AES. Voice uses HMAC join plus a **room** name — see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/PROTOCOL.md`](docs/PROTOCOL.md).
+Tunnel traffic and voice rooms are separate paths on the same relay. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/PROTOCOL.md`](docs/PROTOCOL.md).
 
 ---
 
 ## Quick start
 
 ```bash
-git clone <your-fork-or-mirror> bekon && cd bekon
+git clone https://github.com/tsol/bekon.git && cd bekon
 
-# JDK 21 required for Gradle (wlya-core, wlya-desktop, Android)
-# Android SDK optional — only for APK builds
+# JDK 21 for Gradle. Android SDK only if you build APKs.
 
 npm install
 cd packages/phone-manager && npm install && cd ../..
 
-# Workbench + wlya-desktop :18080 + phone-manager :18082
 npm run dev:start
-# or foreground Vite only: npm run dev
+# workbench + wlya-desktop :18080 + phone-manager :18082
 
-# Self-hosted relay (separate terminal)
 cd packages/wlya-server && docker compose up -d --build
 ```
 
-Open the workbench URL printed by dev-start (default `http://127.0.0.1:5173`). Configure tunnel adapters and voice URL to point at your relay.
+Open the workbench URL from dev-start (default `http://127.0.0.1:5173`). Point adapters and voice at **your** relay.
 
-**Android (optional):** set `ANDROID_HOME`, then `./gradlew :android-client:app:assembleDebug` and deploy with `./tools/adb/gateway deploy`.
+**Android:** `ANDROID_HOME` set, then `./gradlew :android-client:app:assembleDebug` and `./tools/adb/gateway deploy`. Phone client: `./tools/adb/phone deploy`.
 
 ---
 
@@ -88,27 +97,19 @@ Open the workbench URL printed by dev-start (default `http://127.0.0.1:5173`). C
 
 ```
 bekon/
-├── apps/
-│   ├── workbench/          # Vue 3 shell — Tunnels / Control / Voice
-│   ├── gateway/            # Bekon Gateway APK (pro.potoki.bekon)
-│   └── phone/              # Bekon Phone — Line voice client
-├── packages/
-│   ├── wlya-core/          # Kotlin/JVM tunnel core
-│   ├── wlya-adapters/      # plug-in transports (wlyaserver, email, …)
-│   ├── wlya-desktop/       # JVM REST API :18080
-│   ├── wlya-server/        # Node.js + Redis relay (Docker)
-│   ├── bekon-call/         # shared /v1/call WebSocket client
-│   ├── phone-manager/      # phone-control HTTP API :18082
-│   └── phone-mcp/          # MCP tools :18083 over phone-manager
-├── tools/
-│   ├── adb/gateway         # build / deploy Gateway APK
-│   ├── adb/phone           # build / deploy Bekon Phone
-│   └── magisk/wlya-voice/  # optional root audio bridge for Line
-├── scripts/                # dev-start, dev-stop, udev
-├── docs/                   # architecture, protocol, control, line
-├── LICENSE                 # AGPL-3.0-or-later
-├── CONTRIBUTING.md
-└── SECURITY.md
+├── apps/workbench/     Vue shell — Tunnels / Control / Voice
+├── apps/gateway/       Gateway APK (Control + tunnel + Line service)
+├── apps/phone/         Bekon Phone — Line client
+├── packages/wlya-core/         Kotlin tunnel core
+├── packages/wlya-adapters/     transports (wlyaserver, email, …)
+├── packages/wlya-desktop/      JVM REST :18080
+├── packages/wlya-server/       Node + Redis relay
+├── packages/bekon-call/        /v1/call WebSocket client
+├── packages/phone-manager/     Control HTTP :18082
+├── packages/phone-mcp/         MCP :18083
+├── tools/adb/gateway|phone     USB deploy
+├── tools/magisk/wlya-voice/    optional root audio (Line mode C)
+└── docs/
 ```
 
 ---
@@ -117,17 +118,15 @@ bekon/
 
 | Doc | Contents |
 |-----|----------|
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | How components connect |
-| [`docs/PROTOCOL.md`](docs/PROTOCOL.md) | HMAC, seed vs secret, relay endpoints |
-| [`docs/control-protocol.md`](docs/control-protocol.md) | phone-manager queue API (Control) |
-| [`docs/line.md`](docs/line.md) | Voice / GSM bridge (Line) |
-| [`docs/BRAND.md`](docs/BRAND.md) | Naming, Play vs GitHub APK |
-| [`packages/wlya-adapters/README.md`](packages/wlya-adapters/README.md) | Writing a new adapter |
+| [`docs/USE-CASES.md`](docs/USE-CASES.md) | The three cases plus roadmap |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | How components connect, adapter duty |
+| [`docs/PROTOCOL.md`](docs/PROTOCOL.md) | HMAC, seed vs Secret, relay endpoints |
+| [`docs/CONTROL-PROTOCOL.md`](docs/CONTROL-PROTOCOL.md) | phone-manager queue API |
+| [`docs/LINE.md`](docs/LINE.md) | Voice / GSM modes A/B/C |
+| [`docs/BRAND.md`](docs/BRAND.md) | Product names |
+| [`packages/wlya-adapters/README.md`](packages/wlya-adapters/README.md) | Adding an adapter |
+| [`packages/wlya-server/README.md`](packages/wlya-server/README.md) | Relay deploy |
 
 ---
 
-## License & community
-
-Licensed under [AGPL-3.0-or-later](LICENSE). See [CONTRIBUTING.md](CONTRIBUTING.md) for build notes and [SECURITY.md](SECURITY.md) to report vulnerabilities privately.
-
-`root-phone/` holds lab device notes (including unpublished brick trees); it is not part of the public product surface.
+Licensed under [AGPL-3.0-or-later](LICENSE). See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).

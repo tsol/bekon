@@ -44,13 +44,11 @@ Point tunnel and voice clients at **your** relay URL — see [`packages/wlya-ser
 
 ## ADB deploy scripts
 
-`tools/adb/gateway` and `tools/adb/phone` (root wrappers: `from-host.sh`, `from-host-bekon-phone.sh`) resolve `adb` from `$ADB`, then `$ANDROID_HOME/platform-tools/adb`, then `$ANDROID_SDK_ROOT/platform-tools/adb`, then `PATH`.
+`tools/adb/gateway` and `tools/adb/phone` resolve `adb` from `$ADB`, then `$ANDROID_HOME/platform-tools/adb`, then `$ANDROID_SDK_ROOT/platform-tools/adb`, then `PATH`.
 
 ## Docs
 
-- Product names: [`docs/BRAND.md`](docs/BRAND.md)
-- Phone control HTTP API: [`docs/control-protocol.md`](docs/control-protocol.md)
-- GSM / walkie voice line: [`docs/line.md`](docs/line.md)
+Write new documentation in **English**. Use cases and roadmap: [`docs/USE-CASES.md`](docs/USE-CASES.md). Architecture, protocol, Control API, and Line notes live under `docs/`.
 
 ## Pull requests
 

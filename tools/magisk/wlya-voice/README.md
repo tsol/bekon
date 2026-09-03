@@ -7,4 +7,4 @@
 
 `./tools/adb/gateway deploy --magisk` copies the APK into the module overlay and reboots (priv-app). `--no-reboot` skips reboot. Unrooted: `./tools/adb/gateway deploy` is a plain `pm install`.
 
-Pack: `root-phone/scripts/pack-module.sh` (module in `root-phone/magisk/wlya-voice/`).
+Pack: from repo root, `./root-phone/scripts/pack-module.sh` zips this directory to `root-phone/out/wlya-voice.zip`.
