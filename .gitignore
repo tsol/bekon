@@ -35,3 +35,4 @@ store.json
 root-phone/**/AGENT-HANDOFF.md
 root-phone/**/HANDOFF.md
 root-phone/**/DEVICE.md
+apps/workbench/dist
