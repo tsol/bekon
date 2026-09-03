@@ -4,13 +4,9 @@
 
 # Bekon Suite · Be Konnected
 
-**WLYA 在线路上。Bekon 在房间里。**
-
 [English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [Беларуская](README.be.md) · **中文** · [فارسی](README.fa.md)
 
 </div>
-
-自建 relay，你拥有自己的 endpoint。文档中的示例主机名仅供参考。
 
 ---
 

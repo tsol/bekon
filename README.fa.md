@@ -4,15 +4,11 @@
 
 # Bekon Suite · Be Konnected
 
-<p dir="rtl"><strong>WLYA در سیم. Bekon در اتاق.</strong></p>
-
 [English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [Беларуская](README.be.md) · [中文](README.zh.md) · **فارسی**
 
 </div>
 
 <div dir="rtl">
-
-relay خودت — endpoint خودت. نام‌های میزبان در مستندات فقط مثال‌اند.
 
 ---
 

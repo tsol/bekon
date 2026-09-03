@@ -4,13 +4,9 @@
 
 # Bekon Suite · Be Konnected
 
-**WLYA in the wire. Bekon in the room.**
-
 **English** · [Русский](README.ru.md) · [Українська](README.uk.md) · [Беларуская](README.be.md) · [中文](README.zh.md) · [فارسی](README.fa.md)
 
 </div>
-
-Self-host the relay. You own the endpoint. Example hostnames in docs are illustrations only.
 
 ---
 

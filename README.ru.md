@@ -4,13 +4,9 @@
 
 # Bekon Suite · Be Konnected
 
-**WLYA в проводе. Bekon в комнате.**
-
 [English](README.md) · **Русский** · [Українська](README.uk.md) · [Беларуская](README.be.md) · [中文](README.zh.md) · [فارسی](README.fa.md)
 
 </div>
-
-Свой relay — свой endpoint. Примеры хостов в доках иллюстративные.
 
 ---
 
