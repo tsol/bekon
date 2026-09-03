@@ -1,0 +1,13 @@
+{
+  "type": "mock",
+  "label": "In-Memory Mock",
+  "adapterClass": "MockAdapter",
+  "factoryKind": "mock",
+  "defaultConfig": {
+    "role": "backup",
+    "pollIntervalMs": 2000,
+    "sleepPollMs": 3600000,
+    "sleepJitterMs": 900000,
+    "idleMs": 600000
+  }
+}

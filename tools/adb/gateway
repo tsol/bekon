@@ -1,0 +1,508 @@
+#!/bin/bash
+# Build and deploy android-client from the host.
+# Do NOT run the whole script with sudo — only fix-adb needs sudo for udev rules.
+
+unset ANDROID_PREFS_ROOT
+
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT_DIR"
+
+resolve_adb() {
+    if [[ -n "${ADB:-}" && -x "$ADB" ]]; then
+        return 0
+    fi
+    local candidate
+    for candidate in \
+        "${ANDROID_HOME:+$ANDROID_HOME/platform-tools/adb}" \
+        "${ANDROID_SDK_ROOT:+$ANDROID_SDK_ROOT/platform-tools/adb}" \
+        "$(command -v adb 2>/dev/null || true)"; do
+        if [[ -n "$candidate" && -x "$candidate" ]]; then
+            ADB="$candidate"
+            return 0
+        fi
+    done
+    echo "Error: adb not found. Set ADB=, ANDROID_HOME, or install platform-tools." >&2
+    ADB=""
+    return 1
+}
+resolve_adb || true
+
+APK="apps/gateway/app/build/outputs/apk/debug/app-debug.apk"
+UDEV_SRC="scripts/android-udev-51.rules"
+UDEV_DST="/etc/udev/rules.d/51-android.rules"
+PHONE_API="${PHONE_API:-http://127.0.0.1:18082}"
+
+print_usage() {
+    cat <<EOF
+Usage: $0 <command> [options]
+
+Commands:
+  build       Compile debug APK (no device)
+  fix-adb     Install USB udev rules (sudo, once)
+  deploy      USB adb install
+  update      Build + send APK over the WLYA tunnel (phone-manager)
+  uplink      Tiny HTML into Downloads (Voyager): phone HTTP-gets the APK itself
+  help        This text
+
+Deploy options:
+  --magisk        Copy Magisk priv-app overlay (needs su). Fail if the phone is not rooted
+  --no-magisk     Skip overlay even if rooted (plain pm install)
+  --reboot        Reboot after install (needed for Magisk priv-app remount)
+  --no-reboot     Never reboot; launch SetupActivity instead
+
+  Same as env: MAGISK=0|1|auto  REBOOT=0|1|auto
+  Defaults: MAGISK=auto  REBOOT=auto
+    MAGISK=auto  try su; skip overlay if not rooted (no error)
+    REBOOT=auto  reboot only if the Magisk overlay was applied
+
+Update options:
+  --tunnel ID     Tunnel id or label substring (or TUNNEL=)
+  PHONE_API       Default $PHONE_API
+  UPDATE_PAGE     Default https://your-relay.example/u (self-hosted wlya-server)
+
+  Do not use update for a ~8MB APK — it OOMs ingest on the phone.
+  Host the APK: ./packages/wlya-server/scripts/relay deploy && ./packages/wlya-server/scripts/relay publish-apk
+  Then: $0 uplink --tunnel <tunnel-id>
+  On the phone tap Download/bekon-update.html or open your relay /u page
+
+Examples:
+  $0 deploy                     # unrooted phone: pm install, no reboot
+  $0 deploy --magisk            # rooted: overlay + reboot
+  $0 deploy --magisk --no-reboot
+  MAGISK=1 REBOOT=0 $0 deploy
+  $0 update --tunnel phone-1
+  $0 uplink --tunnel phone-1
+EOF
+}
+
+norm_tri() {
+    local v="${1:-auto}"
+    v=$(printf '%s' "$v" | tr '[:upper:]' '[:lower:]')
+    case "$v" in
+        0|no|false|off) echo 0 ;;
+        1|yes|true|on) echo 1 ;;
+        auto|"") echo auto ;;
+        *)
+            echo "Error: expected 0|1|auto, got '$1'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+has_authorized_device() {
+    local runner="$1"
+    $runner devices 2>/dev/null | awk 'NR>1 && $2=="device" {found=1} END {exit !found}'
+}
+
+pick_adb_runner() {
+    if [[ -z "$ADB" ]]; then
+        return 1
+    fi
+    if has_authorized_device "$ADB"; then
+        ADB_RUN=("$ADB")
+        echo "Using adb as current user."
+        return 0
+    fi
+    if has_authorized_device "sudo $ADB"; then
+        ADB_RUN=(sudo "$ADB")
+        echo "Using sudo adb (udev not fixed for user — run ./from-host.sh fix-adb)."
+        return 0
+    fi
+    return 1
+}
+
+show_device_status() {
+    echo "User adb:"
+    [[ -n "$ADB" ]] && "$ADB" devices -l
+    echo ""
+    echo "If you already ran fix-adb, try unplug/replug USB and:"
+    echo "  $ADB kill-server && $ADB start-server"
+}
+
+ensure_apk() {
+    if [[ ! -f "$APK" ]]; then
+        echo "APK not found, building..."
+        ./gradlew :android-client:app:assembleDebug --project-cache-dir "$ROOT_DIR/.gradle-host"
+    fi
+    if [[ ! -f "$APK" ]]; then
+        echo "Error: build failed, no APK at $APK" >&2
+        exit 1
+    fi
+}
+
+# Magisk su -c must be ONE remote string. `adb shell su -c 'a && b'` becomes
+# `su -c a && b` on device, so `b` runs as uid 2000 → Permission denied on /data/adb.
+adb_su() {
+    "${ADB_RUN[@]}" shell "su -c '$1'"
+}
+
+device_has_root() {
+    local out
+    out=$(adb_su 'id -u' 2>/dev/null | tr -d '\r\n')
+    [[ "$out" == "0" ]]
+}
+
+launch_setup() {
+    echo "--- Launch SetupActivity ---"
+    "${ADB_RUN[@]}" shell am start -n pro.potoki.bekon/.SetupActivity || true
+}
+
+sync_magisk_privapp() {
+    echo "--- Sync complete Magisk module (APK + permissions + props) ---"
+    local module="$ROOT_DIR/tools/magisk/wlya-voice"
+    "${ADB_RUN[@]}" push "$APK" /data/local/tmp/bekon.apk
+    "${ADB_RUN[@]}" push "$module/module.prop" /data/local/tmp/wlya-voice-module.prop
+    "${ADB_RUN[@]}" push "$module/system.prop" /data/local/tmp/wlya-voice-system.prop
+    "${ADB_RUN[@]}" push "$module/service.sh" /data/local/tmp/wlya-voice-service.sh
+    "${ADB_RUN[@]}" push \
+        "$module/system/etc/permissions/privapp-permissions-wlya.xml" \
+        /data/local/tmp/privapp-permissions-wlya.xml
+    local out
+    if ! out=$(adb_su 'mkdir -p /data/adb/modules/wlya-voice/system/priv-app/Bekon /data/adb/modules/wlya-voice/system/etc/permissions && cp /data/local/tmp/bekon.apk /data/adb/modules/wlya-voice/system/priv-app/Bekon/Bekon.apk && cp /data/local/tmp/wlya-voice-module.prop /data/adb/modules/wlya-voice/module.prop && cp /data/local/tmp/wlya-voice-system.prop /data/adb/modules/wlya-voice/system.prop && cp /data/local/tmp/wlya-voice-service.sh /data/adb/modules/wlya-voice/service.sh && cp /data/local/tmp/privapp-permissions-wlya.xml /data/adb/modules/wlya-voice/system/etc/permissions/privapp-permissions-wlya.xml && chmod 644 /data/adb/modules/wlya-voice/module.prop /data/adb/modules/wlya-voice/system.prop /data/adb/modules/wlya-voice/system/priv-app/Bekon/Bekon.apk /data/adb/modules/wlya-voice/system/etc/permissions/privapp-permissions-wlya.xml && chmod 755 /data/adb/modules/wlya-voice/service.sh && chcon -R u:object_r:system_file:s0 /data/adb/modules/wlya-voice/system && sync && ls -lZ /data/adb/modules/wlya-voice/system/priv-app/Bekon/Bekon.apk /data/adb/modules/wlya-voice/system/etc/permissions/privapp-permissions-wlya.xml' 2>&1); then
+        echo "Error: Magisk overlay copy failed:" >&2
+        echo "$out" >&2
+        return 1
+    fi
+    echo "$out" | tr -d '\r'
+}
+
+wait_phone_boot() {
+    echo "--- Waiting for boot ---"
+    sleep 4
+    "${ADB_RUN[@]}" wait-for-device
+    local i=0
+    while [[ $i -lt 90 ]]; do
+        local c
+        c=$("${ADB_RUN[@]}" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+        if [[ "$c" == "1" ]]; then
+            echo "boot_completed=1"
+            return 0
+        fi
+        i=$((i + 1))
+        sleep 2
+    done
+    echo "warn: timed out waiting for boot_completed" >&2
+    return 1
+}
+
+reboot_for_privapp() {
+    echo "--- Reboot so Magisk remounts priv-app, then BootReceiver/service.sh start the agent ---"
+    "${ADB_RUN[@]}" reboot
+    wait_phone_boot
+    echo "Phone is up. Magisk service.sh + BootReceiver should Start All (tunnel watchdog)."
+}
+
+tunnel_update() {
+    ensure_apk
+    echo "--- Tunnel update via $PHONE_API ---"
+    echo "APK: $APK ($(du -h "$APK" | awk '{print $1}'))"
+    python3 - "$PHONE_API" "$APK" "${TUNNEL:-}" <<'PY'
+import json, sys, urllib.error, urllib.request, base64, os
+
+api, apk, want = sys.argv[1], sys.argv[2], sys.argv[3]
+
+
+def req(method, path, data=None, timeout=600):
+    url = api.rstrip("/") + path
+    body = None if data is None else json.dumps(data).encode()
+    r = urllib.request.Request(url, data=body, method=method)
+    if body is not None:
+        r.add_header("Content-Type", "application/json")
+    with urllib.request.urlopen(r, timeout=timeout) as resp:
+        raw = resp.read()
+        if not raw:
+            return {}
+        return json.loads(raw.decode())
+
+
+try:
+    tunnels = req("GET", "/tunnels", timeout=15)
+except urllib.error.URLError as e:
+    print("Error: phone-manager not reachable:", e, file=sys.stderr)
+    sys.exit(1)
+
+running = [t for t in tunnels if t.get("running")]
+if want:
+    w = want.lower()
+    running = [
+        t for t in running
+        if w in str(t.get("id", "")).lower() or w in str(t.get("label", "")).lower()
+    ]
+if not running:
+    print("Error: no running tunnel. GET /tunnels:", json.dumps(tunnels), file=sys.stderr)
+    print("Start the phone tunnel or set TUNNEL=<id>", file=sys.stderr)
+    sys.exit(1)
+tid = running[0]["id"]
+if len(running) > 1:
+    print("Multiple running tunnels, using", tid, running[0].get("label"))
+else:
+    print("Tunnel", tid, running[0].get("label"))
+
+size = os.path.getsize(apk)
+if size > 25 * 1024 * 1024:
+    print("Error: APK larger than 25 MB:", size, file=sys.stderr)
+    sys.exit(1)
+b64 = base64.b64encode(open(apk, "rb").read()).decode("ascii")
+name = os.path.basename(apk)
+print("Enqueue putFile", name, size, "bytes…")
+req("DELETE", f"/tunnels/{tid}/queue", timeout=15)
+req(
+    "POST",
+    f"/tunnels/{tid}/queue",
+    {
+        "kind": "file",
+        "name": name,
+        "mime": "application/vnd.android.package-archive",
+        "data": b64,
+    },
+    timeout=120,
+)
+print("Execute (phone installs if Auto-update APK is on)…")
+out = req("POST", f"/tunnels/{tid}/queue/execute", timeout=600)
+err = out.get("errors") if isinstance(out, dict) else None
+if err:
+    print("Execute errors:", err, file=sys.stderr)
+    sys.exit(1)
+state = req("GET", f"/tunnels/{tid}/state", timeout=15)
+put = state.get("lastPutFile") if isinstance(state, dict) else None
+print("lastPutFile:", json.dumps(put, indent=2) if put else "(none)")
+print("Done. Phone should pm install in a few seconds.")
+print("NOTE: a full APK through the tunnel can freeze the phone. Prefer: ./from-host.sh uplink")
+PY
+}
+
+tunnel_uplink() {
+    echo "--- Voyager uplink (tiny HTML, APK over HTTPS) ---"
+    local page="${UPDATE_PAGE:-}"
+    if [[ -z "$page" ]]; then
+        echo "Error: set UPDATE_PAGE to your relay HTTPS /u URL (self-hosted wlya-server)." >&2
+        exit 1
+    fi
+    echo "Page: $page"
+    python3 - "$PHONE_API" "${TUNNEL:-}" "$page" <<'PY'
+import json, sys, urllib.error, urllib.request, base64
+
+api, want, page = sys.argv[1], sys.argv[2], sys.argv[3]
+
+
+def req(method, path, data=None, timeout=120):
+    url = api.rstrip("/") + path
+    body = None if data is None else json.dumps(data).encode()
+    r = urllib.request.Request(url, data=body, method=method)
+    if body is not None:
+        r.add_header("Content-Type", "application/json")
+    with urllib.request.urlopen(r, timeout=timeout) as resp:
+        raw = resp.read()
+        if not raw:
+            return {}
+        return json.loads(raw.decode())
+
+
+try:
+    tunnels = req("GET", "/tunnels", timeout=15)
+except urllib.error.URLError as e:
+    print("Error: phone-manager not reachable:", e, file=sys.stderr)
+    sys.exit(1)
+
+running = [t for t in tunnels if t.get("running")]
+if want:
+    w = want.lower()
+    running = [
+        t for t in running
+        if w in str(t.get("id", "")).lower() or w in str(t.get("label", "")).lower()
+    ]
+if not running:
+    print("Error: no running tunnel. GET /tunnels:", json.dumps(tunnels), file=sys.stderr)
+    sys.exit(1)
+tid = running[0]["id"]
+print("Tunnel", tid, running[0].get("label"))
+
+html = f"""<!doctype html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/>
+<title>Bekon update</title></head>
+<body style="font-family:sans-serif;padding:24px;font-size:22px">
+<p><a href="{page}">Download Bekon update</a></p>
+<p>Or open your relay <b>/u</b> page in Chrome.</p>
+</body></html>
+"""
+raw = html.encode("utf-8")
+b64 = base64.b64encode(raw).decode("ascii")
+print("putFile bekon-update.html", len(raw), "bytes")
+req("DELETE", f"/tunnels/{tid}/queue", timeout=15)
+req(
+    "POST",
+    f"/tunnels/{tid}/queue",
+    {
+        "kind": "file",
+        "name": "bekon-update.html",
+        "mime": "text/html",
+        "data": b64,
+    },
+    timeout=60,
+)
+out = req("POST", f"/tunnels/{tid}/queue/execute", timeout=90)
+err = out.get("errors") if isinstance(out, dict) else None
+if err:
+    print("Execute errors:", err, file=sys.stderr)
+    sys.exit(1)
+state = req("GET", f"/tunnels/{tid}/state", timeout=15)
+print("lastPutFile:", json.dumps(state.get("lastPutFile"), indent=2))
+print("On the phone: Download → bekon-update.html → install APK")
+PY
+}
+
+COMMAND=""
+MAGISK="$(norm_tri "${MAGISK:-auto}")"
+REBOOT="$(norm_tri "${REBOOT:-auto}")"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help|help)
+            print_usage
+            exit 0
+            ;;
+        build|fix-adb|deploy|update|uplink)
+            if [[ -n "$COMMAND" ]]; then
+                echo "Error: extra command '$1' (already '$COMMAND')" >&2
+                exit 1
+            fi
+            COMMAND="$1"
+            shift
+            ;;
+        --magisk)
+            MAGISK=1
+            shift
+            ;;
+        --no-magisk)
+            MAGISK=0
+            shift
+            ;;
+        --reboot)
+            REBOOT=1
+            shift
+            ;;
+        --no-reboot)
+            REBOOT=0
+            shift
+            ;;
+        --tunnel)
+            if [[ -z "${2:-}" || "$2" == -* ]]; then
+                echo "Error: --tunnel needs an id or label" >&2
+                exit 1
+            fi
+            TUNNEL="$2"
+            shift 2
+            ;;
+        --tunnel=*)
+            TUNNEL="${1#*=}"
+            shift
+            ;;
+        *)
+            echo "Error: unknown argument '$1'" >&2
+            print_usage
+            exit 1
+            ;;
+    esac
+done
+
+if [[ -z "$COMMAND" ]]; then
+    print_usage
+    exit 1
+fi
+
+case "$COMMAND" in
+    build)
+        echo "--- Building Android Client ---"
+        ./gradlew :android-client:app:assembleDebug --project-cache-dir "$ROOT_DIR/.gradle-host"
+        ;;
+    fix-adb)
+        echo "--- Fixing ADB USB permissions (udev) ---"
+        if [ ! -f "$UDEV_SRC" ]; then
+            echo "Error: missing $UDEV_SRC"
+            exit 1
+        fi
+        echo "Installing $UDEV_SRC -> $UDEV_DST"
+        sudo cp "$UDEV_SRC" "$UDEV_DST"
+        sudo chmod 644 "$UDEV_DST"
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger
+        echo ""
+        echo "Done. Now:"
+        echo "  1. Unplug and replug the phone USB cable"
+        echo "  2. On phone: enable USB debugging, tap Allow if prompted"
+        echo "  3. $ADB kill-server && $ADB start-server"
+        echo "  4. $ADB devices   (should show 'device', not 'no permissions')"
+        echo "  5. ./from-host.sh deploy"
+        ;;
+    deploy)
+        echo "--- Deploying to Device ---"
+        echo "MAGISK=$MAGISK REBOOT=$REBOOT"
+        ensure_apk
+        if ! pick_adb_runner; then
+            echo "Error: No authorized Android device found."
+            echo ""
+            show_device_status
+            echo ""
+            echo "Fix (run once, NOT sudo ./from-host.sh deploy):"
+            echo "  ./from-host.sh fix-adb"
+            exit 1
+        fi
+        echo "--- Installing $APK ---"
+        if ! "${ADB_RUN[@]}" install -r "$APK"; then
+            echo "Error: adb install failed."
+            exit 1
+        fi
+        magisk_ok=0
+        case "$MAGISK" in
+            0)
+                echo "--- Skip Magisk overlay (--no-magisk / MAGISK=0) ---"
+                ;;
+            1)
+                if ! device_has_root; then
+                    echo "Error: --magisk needs root (su). This phone has no su." >&2
+                    echo "User install already succeeded. Retry with: $0 deploy --no-magisk" >&2
+                    exit 1
+                fi
+                sync_magisk_privapp || exit 1
+                magisk_ok=1
+                ;;
+            auto)
+                if device_has_root; then
+                    echo "--- Root detected, Magisk overlay ---"
+                    sync_magisk_privapp || exit 1
+                    magisk_ok=1
+                else
+                    echo "--- No root (su) — skip Magisk overlay and reboot ---"
+                    echo "Walkie / user APK is enough. Rooted GSM priv-app: $0 deploy --magisk"
+                fi
+                ;;
+        esac
+        do_reboot=0
+        case "$REBOOT" in
+            0) do_reboot=0 ;;
+            1) do_reboot=1 ;;
+            auto) [[ "$magisk_ok" == 1 ]] && do_reboot=1 ;;
+        esac
+        if [[ "$do_reboot" == 1 ]]; then
+            reboot_for_privapp
+        else
+            if [[ "$magisk_ok" == 1 ]]; then
+                echo "REBOOT=0 — overlay applies next boot. CAPTURE_AUDIO_OUTPUT may be stale until then."
+            fi
+            launch_setup
+        fi
+        ;;
+    update)
+        echo "--- Building Android Client ---"
+        echo "warn: full APK via WLYA can freeze the phone. Prefer: $0 uplink"
+        ./gradlew :android-client:app:assembleDebug --project-cache-dir "$ROOT_DIR/.gradle-host"
+        tunnel_update
+        ;;
+    uplink)
+        tunnel_uplink
+        ;;
+    *)
+        print_usage
+        exit 1
+        ;;
+esac

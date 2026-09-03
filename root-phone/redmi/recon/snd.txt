@@ -1,0 +1,27 @@
+total 0
+crw-rw---- 1 system audio 116,   2 2026-08-26 00:11 controlC0
+crw-rw---- 1 system audio 116,   3 2026-08-26 00:11 pcmC0D0p
+crw-rw---- 1 system audio 116,  14 2026-08-26 00:11 pcmC0D10c
+crw-rw---- 1 system audio 116,  13 2026-08-26 00:11 pcmC0D10p
+crw-rw---- 1 system audio 116,  16 2026-08-26 00:11 pcmC0D11c
+crw-rw---- 1 system audio 116,  15 2026-08-26 00:11 pcmC0D11p
+crw-rw---- 1 system audio 116,  18 2026-08-26 00:11 pcmC0D12c
+crw-rw---- 1 system audio 116,  17 2026-08-26 00:11 pcmC0D12p
+crw-rw---- 1 system audio 116,  20 2026-08-26 00:11 pcmC0D13c
+crw-rw---- 1 system audio 116,  19 2026-08-26 00:11 pcmC0D13p
+crw-rw---- 1 system audio 116,  22 2026-08-26 00:11 pcmC0D14c
+crw-rw---- 1 system audio 116,  21 2026-08-26 00:11 pcmC0D14p
+crw-rw---- 1 system audio 116,  23 2026-08-26 00:11 pcmC0D15p
+crw-rw---- 1 system audio 116,   4 2026-08-26 00:11 pcmC0D1p
+crw-rw---- 1 system audio 116,   5 2026-08-26 00:11 pcmC0D2p
+crw-rw---- 1 system audio 116,  25 2026-08-26 00:11 pcmC0D30c
+crw-rw---- 1 system audio 116,  24 2026-08-26 00:11 pcmC0D30p
+crw-rw---- 1 system audio 116,   6 2026-08-26 00:11 pcmC0D3p
+crw-rw---- 1 system audio 116,   7 2026-08-26 00:11 pcmC0D4c
+crw-rw---- 1 system audio 116,   8 2026-08-26 00:11 pcmC0D5c
+crw-rw---- 1 system audio 116,   9 2026-08-26 00:11 pcmC0D6c
+crw-rw---- 1 system audio 116,  10 2026-08-26 00:11 pcmC0D7c
+crw-rw---- 1 system audio 116,  11 2026-08-26 00:11 pcmC0D8c
+crw-rw---- 1 system audio 116,  12 2026-08-26 00:11 pcmC0D9c
+crw-rw---- 1 system audio 116,   1 2026-08-26 00:11 seq
+crw-rw---- 1 system audio 116,  33 2026-08-26 00:11 timer

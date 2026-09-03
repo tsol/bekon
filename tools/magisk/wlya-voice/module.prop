@@ -1,0 +1,6 @@
+id=wlya-voice
+name=WLYA voice (GSM line)
+version=0.1
+versionCode=1
+author=wlya
+description=Call-audio concurrency props and CAPTURE_AUDIO_OUTPUT for pro.potoki.bekon

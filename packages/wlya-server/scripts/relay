@@ -1,0 +1,293 @@
+#!/bin/bash
+# Dev start/stop for wlya-server (Node + Redis) from the host.
+#
+# Usage (from wlya-tunnel root):
+#   ./from-host-wlya-server.sh start          # PORT=18081
+#   PORT=18082 ./from-host-wlya-server.sh start
+#   ./from-host-wlya-server.sh stop
+#   ./from-host-wlya-server.sh status
+#   ./from-host-wlya-server.sh deploy         # rsync + docker compose on the box
+#
+# Redis: uses 127.0.0.1:6379 if already up, otherwise starts docker
+# container "wlya-redis". stop does not kill Redis.
+#
+# deploy: same path as wlya-server/deploy_example.sh (D4 + D7 + D9).
+# SSH password once via ControlMaster. Override:
+#   DEPLOY_USER DEPLOY_HOST DEPLOY_DIR DEPLOY_HEALTH SSH_PASS
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+SERVER_DIR="$ROOT_DIR/packages/wlya-server"
+DEV_DIR="$SERVER_DIR/.dev"
+PID_FILE="$DEV_DIR/server.pid"
+LOG_FILE="$DEV_DIR/server.log"
+PORT="${PORT:-18081}"
+REDIS_URL="${REDIS_URL:-redis://127.0.0.1:6379}"
+REDIS_NAME="${REDIS_NAME:-wlya-redis}"
+DEPLOY_USER="${DEPLOY_USER:-root}"
+# Origin IP from deploy_example.sh — do not SSH the Cloudflare hostname.
+DEPLOY_HOST="${DEPLOY_HOST:-37.60.235.35}"
+DEPLOY_DIR="${DEPLOY_DIR:-/opt/wlya-server/app}"
+DEPLOY_HEALTH="${DEPLOY_HEALTH:-https://wlya.potoki.pro/health}"
+SSH_PASS="${SSH_PASS:-}"
+
+print_usage() {
+    echo "Usage: $0 [start|stop|status|deploy]"
+    echo "  start   Redis (if needed) + tsx (no file watch) on PORT (default 18081)"
+    echo "  stop    Kill the Node process (Redis stays)"
+    echo "  status  PID, port, /health"
+    echo "  deploy      rsync wlya-server/ → $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR, compose build && up -d
+  publish-apk Copy debug APK to $DEPLOY_DIR/public/bekon.apk (HTTPS /bekon.apk after deploy)"
+    echo ""
+    echo "Env: PORT=$PORT  REDIS_URL=$REDIS_URL"
+    echo "     DEPLOY_USER=$DEPLOY_USER  DEPLOY_HOST=$DEPLOY_HOST  DEPLOY_DIR=$DEPLOY_DIR"
+    echo "     DEPLOY_HEALTH=$DEPLOY_HEALTH  SSH_PASS=(empty = prompt)"
+}
+
+is_alive() {
+    local pid="${1:-}"
+    [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null
+}
+
+redis_up() {
+    if command -v redis-cli >/dev/null 2>&1; then
+        redis-cli -u "$REDIS_URL" ping 2>/dev/null | grep -q PONG
+        return $?
+    fi
+    timeout 1 bash -c "echo >/dev/tcp/127.0.0.1/6379" 2>/dev/null
+}
+
+ensure_redis() {
+    if redis_up; then
+        echo "Redis already on $REDIS_URL"
+        return 0
+    fi
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "Error: Redis is down and docker is not available."
+        exit 1
+    fi
+    if docker ps -a --format '{{.Names}}' | grep -qx "$REDIS_NAME"; then
+        echo "Starting existing container $REDIS_NAME"
+        docker start "$REDIS_NAME" >/dev/null
+    else
+        echo "Creating $REDIS_NAME (redis:7-alpine) on :6379"
+        docker run -d --name "$REDIS_NAME" -p 6379:6379 redis:7-alpine >/dev/null
+    fi
+    for _ in $(seq 1 20); do
+        if redis_up; then
+            echo "Redis ready"
+            return 0
+        fi
+        sleep 0.3
+    done
+    echo "Error: Redis did not become ready"
+    exit 1
+}
+
+wait_health() {
+    local url="http://127.0.0.1:${PORT}/health"
+    for _ in $(seq 1 40); do
+        if curl -sfS "$url" >/dev/null 2>&1; then
+            echo "Listening $url"
+            return 0
+        fi
+        sleep 0.25
+    done
+    echo "Error: no /health at $url"
+    echo "--- $LOG_FILE ---"
+    tail -n 40 "$LOG_FILE" || true
+    return 1
+}
+
+kill_tree() {
+    local pid="$1"
+    if ! is_alive "$pid"; then
+        return 0
+    fi
+    local kids
+    kids="$(pgrep -P "$pid" || true)"
+    for c in $kids; do
+        kill_tree "$c"
+    done
+    kill "$pid" 2>/dev/null || true
+}
+
+cmd_start() {
+    mkdir -p "$DEV_DIR"
+    if [ -f "$PID_FILE" ]; then
+        local old
+        old="$(cat "$PID_FILE")"
+        if is_alive "$old"; then
+            echo "Already running pid=$old  http://127.0.0.1:${PORT}/health"
+            echo "(stop first to change PORT)"
+            exit 0
+        fi
+        rm -f "$PID_FILE"
+    fi
+
+    ensure_redis
+    cd "$SERVER_DIR"
+    if [ ! -d node_modules ]; then
+        echo "npm ci"
+        npm ci
+    fi
+
+    echo "Starting npm run dev:nowatch  PORT=$PORT"
+    : > "$LOG_FILE"
+    nohup env PORT="$PORT" REDIS_URL="$REDIS_URL" npm run dev:nowatch >>"$LOG_FILE" 2>&1 &
+    echo $! > "$PID_FILE"
+    echo "pid=$(cat "$PID_FILE")  log=$LOG_FILE"
+    if ! wait_health; then
+        exit 1
+    fi
+}
+
+cmd_stop() {
+    if [ ! -f "$PID_FILE" ]; then
+        echo "Not running (no $PID_FILE)"
+        exit 0
+    fi
+    local pid
+    pid="$(cat "$PID_FILE")"
+    echo "Stopping pid=$pid"
+    kill_tree "$pid"
+    sleep 0.4
+    if is_alive "$pid"; then
+        kill -9 "$pid" 2>/dev/null || true
+        pkill -9 -P "$pid" 2>/dev/null || true
+    fi
+    rm -f "$PID_FILE"
+    echo "Stopped. Redis left running."
+}
+
+ssh_cmd() {
+    if [ -n "$SSH_PASS" ]; then
+        command -v sshpass >/dev/null 2>&1 || { echo "Error: sshpass required when SSH_PASS is set"; exit 1; }
+        export SSHPASS="$SSH_PASS"
+        sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 "$@"
+    else
+        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 "$@"
+    fi
+}
+
+rsync_cmd() {
+    if [ -n "$SSH_PASS" ]; then
+        command -v sshpass >/dev/null 2>&1 || { echo "Error: sshpass required when SSH_PASS is set"; exit 1; }
+        export SSHPASS="$SSH_PASS"
+        rsync -az -e 'sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15' "$@"
+    else
+        rsync -az -e "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -o ControlPath=$DEPLOY_CTL -o ControlMaster=auto" "$@"
+    fi
+}
+
+cmd_deploy() {
+    command -v rsync >/dev/null 2>&1 || { echo "Error: rsync not found"; exit 1; }
+    command -v ssh >/dev/null 2>&1 || { echo "Error: ssh not found"; exit 1; }
+    [ -f "$SERVER_DIR/docker-compose.yml" ] || { echo "Error: missing $SERVER_DIR/docker-compose.yml"; exit 1; }
+
+    DEPLOY_CTL=""
+    DEPLOY_DEST="${DEPLOY_USER}@${DEPLOY_HOST}"
+    echo "Deploy $SERVER_DIR → ${DEPLOY_DEST}:${DEPLOY_DIR}"
+
+    if [ -z "$SSH_PASS" ]; then
+        DEPLOY_CTL="$(mktemp -u /tmp/wlya-ssh-XXXX)"
+        echo "SSH password (once)…"
+        ssh -fN -o StrictHostKeyChecking=no -o ConnectTimeout=15 \
+            -o ControlMaster=yes -o ControlPath="$DEPLOY_CTL" -o ControlPersist=60 \
+            "$DEPLOY_DEST"
+        trap 'ssh -o ControlPath="${DEPLOY_CTL:-/dev/null}" -O exit "${DEPLOY_DEST:-}" >/dev/null 2>&1 || true; rm -f "${DEPLOY_CTL:-}"' EXIT
+    fi
+
+    ssh_cmd ${DEPLOY_CTL:+-o ControlPath="$DEPLOY_CTL"} "$DEPLOY_DEST" "mkdir -p ${DEPLOY_DIR}"
+    rsync_cmd \
+        --exclude node_modules --exclude dist --exclude .dev \
+        "$SERVER_DIR/" "${DEPLOY_DEST}:${DEPLOY_DIR}/"
+
+    echo "docker compose build && up -d"
+    ssh_cmd ${DEPLOY_CTL:+-o ControlPath="$DEPLOY_CTL"} -t "$DEPLOY_DEST" \
+        "cd ${DEPLOY_DIR} && docker compose build && docker compose up -d && docker compose ps"
+
+    echo "wait origin /health"
+    local i origin=""
+    for i in $(seq 1 30); do
+        origin="$(ssh_cmd ${DEPLOY_CTL:+-o ControlPath="$DEPLOY_CTL"} "$DEPLOY_DEST" \
+            "curl -sfS --max-time 2 http://127.0.0.1:${PORT}/health" 2>/dev/null || true)"
+        if echo "$origin" | grep -q '"ok"'; then
+            echo "$origin"
+            break
+        fi
+        sleep 1
+    done
+    if ! echo "$origin" | grep -q '"ok"'; then
+        echo "Error: origin /health not ready"
+        ssh_cmd ${DEPLOY_CTL:+-o ControlPath="$DEPLOY_CTL"} "$DEPLOY_DEST" \
+            "cd ${DEPLOY_DIR} && docker compose logs --tail=40 app" || true
+        exit 1
+    fi
+
+    echo "public ${DEPLOY_HEALTH}"
+    local health=""
+    for i in $(seq 1 20); do
+        health="$(curl -sS -H 'User-Agent: Mozilla/5.0' "$DEPLOY_HEALTH" 2>/dev/null || true)"
+        if echo "$health" | grep -q '"ok"'; then
+            echo "$health"
+            echo "Deploy ok"
+            return 0
+        fi
+        sleep 1
+    done
+    echo "Warning: origin is up, public health not ready yet: ${health:-empty}"
+}
+
+cmd_publish_apk() {
+    local apk="$ROOT_DIR/apps/gateway/app/build/outputs/apk/debug/app-debug.apk"
+    if [ ! -f "$apk" ]; then
+        echo "APK missing, building..."
+        (cd "$ROOT_DIR" && ./gradlew :android-client:app:assembleDebug --project-cache-dir "$ROOT_DIR/.gradle-host")
+    fi
+    [ -f "$apk" ] || { echo "Error: no $apk"; exit 1; }
+    DEPLOY_DEST="${DEPLOY_USER}@${DEPLOY_HOST}"
+    echo "Publish $(du -h "$apk" | awk '{print $1}') → ${DEPLOY_DEST}:${DEPLOY_DIR}/public/bekon.apk"
+    ssh_cmd "$DEPLOY_DEST" "mkdir -p ${DEPLOY_DIR}/public"
+    if [ -n "$SSH_PASS" ]; then
+        command -v sshpass >/dev/null 2>&1 || { echo "Error: sshpass required when SSH_PASS is set"; exit 1; }
+        export SSHPASS="$SSH_PASS"
+        sshpass -e scp -o StrictHostKeyChecking=no -o ConnectTimeout=15 \
+            "$apk" "${DEPLOY_DEST}:${DEPLOY_DIR}/public/bekon.apk"
+    else
+        scp -o StrictHostKeyChecking=no -o ConnectTimeout=15 \
+            "$apk" "${DEPLOY_DEST}:${DEPLOY_DIR}/public/bekon.apk"
+    fi
+    echo "Check ${DEPLOY_HEALTH%/health}/bekon.apk (needs app image with GET /u — run deploy once)"
+    curl -sSI -H 'User-Agent: Mozilla/5.0' "${DEPLOY_HEALTH%/health}/u" | head -n 15 || true
+}
+
+cmd_status() {
+    if [ ! -f "$PID_FILE" ]; then
+        echo "status=stopped"
+        exit 1
+    fi
+    local pid
+    pid="$(cat "$PID_FILE")"
+    if ! is_alive "$pid"; then
+        echo "status=dead  pidfile=$pid"
+        exit 1
+    fi
+    local health
+    health="$(curl -sfS "http://127.0.0.1:${PORT}/health" 2>/dev/null || echo down)"
+    echo "status=running"
+    echo "pid=$pid"
+    echo "port=$PORT"
+    echo "health=$health"
+    echo "log=$LOG_FILE"
+}
+
+case "${1:-}" in
+    start)  cmd_start ;;
+    stop)   cmd_stop ;;
+    status) cmd_status ;;
+    deploy) cmd_deploy ;;
+    publish-apk) cmd_publish_apk ;;
+    *)      print_usage; exit 1 ;;
+esac

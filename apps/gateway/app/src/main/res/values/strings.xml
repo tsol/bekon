@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bekon Gateway</string>
+    <string name="accessibility_service_description">Bekon Gateway remote touch: injects taps and swipes from the tunnel.</string>
+    <string name="ime_name">Bekon Keys</string>
+</resources>

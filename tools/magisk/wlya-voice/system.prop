@@ -1,0 +1,7 @@
+# gsm2sip-style concurrency. Unisoc may ignore; still set.
+voice.voip.conc.disabled=false
+voice.record.conc.disabled=false
+voice.playback.conc.disabled=false
+persist.audio.voice.voip.conc.disabled=false
+persist.audio.voice.record.conc.disabled=false
+persist.audio.voice.playback.conc.disabled=false

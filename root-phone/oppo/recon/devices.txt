@@ -1,0 +1,3 @@
+List of devices attached
+b500a4ca               device usb:1-2 product:CPH2333TR model:CPH2333 device:OP530DL1 transport_id:19
+

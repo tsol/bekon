@@ -1,0 +1,3 @@
+List of devices attached
+ZY3275Z3NB             device usb:1-2 product:ocean_retru_n model:moto_g_7__power device:ocean_n transport_id:13
+

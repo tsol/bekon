@@ -1,0 +1,1253 @@
+AudioPolicyManager: 0x7d0fd61000
+Command Thread: 0x7d0fd42180
+AudioCommandThread 0x7d0fd42180 Dump
+- Commands:
+   Command Time        Wait pParam
+  Last Command
+   00      000950.704  0    0x7c7a01a9c0
+
+AudioPolicyManager Dump: 0x7d0fd61000
+ Primary Output: 13
+ Phone state: AUDIO_MODE_NORMAL
+ Force use for communications: 0
+ Force use for media: 0
+ Force use for record: 0
+ Force use for dock: 8
+ Force use for system: 0
+ Force use for HDMI system audio: 0
+ Force use for encoded surround output: 0
+ Force use for vibrate ringing: 0
+ TTS output not available
+ Master mono: off
+ Config source: /vendor/etc/audio_policy_configuration.xml
+- Available output devices:
+  Device 1:
+  - id:  2
+  - tag name: Earpiece
+  - type: AUDIO_DEVICE_OUT_EARPIECE                       
+  - Profiles:
+      Profile 0:[dynamic format][dynamic channels][dynamic rates]
+  Device 2:
+  - id:  3
+  - tag name: Speaker
+  - type: AUDIO_DEVICE_OUT_SPEAKER                        
+  - Profiles:
+      Profile 0:[dynamic format][dynamic channels][dynamic rates]
+  Device 3:
+  - id:  8
+  - tag name: Telephony Tx
+  - type: AUDIO_DEVICE_OUT_TELEPHONY_TX                   
+  - Profiles:
+      Profile 0:[dynamic format][dynamic channels][dynamic rates]
+- Available input devices:
+  Device 1:
+  - id: 13
+  - tag name: Built-In Mic
+  - type: AUDIO_DEVICE_IN_BUILTIN_MIC                     
+  - address: bottom                          
+  - Profiles:
+      Profile 0:[dynamic format][dynamic channels][dynamic rates]
+      Profile 1:
+          - format: AUDIO_FORMAT_PCM_16_BIT
+          - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+          - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+      Profile 2:
+          - format: AUDIO_FORMAT_PCM_8_24_BIT
+          - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+          - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+  Device 2:
+  - id: 14
+  - tag name: Built-In Back Mic
+  - type: AUDIO_DEVICE_IN_BACK_MIC                        
+  - address: back                            
+  - Profiles:
+      Profile 0:[dynamic format][dynamic channels][dynamic rates]
+      Profile 1:
+          - format: AUDIO_FORMAT_PCM_16_BIT
+          - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+          - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+      Profile 2:
+          - format: AUDIO_FORMAT_PCM_8_24_BIT
+          - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+          - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+  Device 3:
+  - id: 18
+  - tag name: Telephony Rx
+  - type: AUDIO_DEVICE_IN_TELEPHONY_RX|AUDIO_DEVICE_IN_VOICE_CALL
+  - Profiles:
+      Profile 0:[dynamic format][dynamic channels][dynamic rates]
+      Profile 1:
+          - format: AUDIO_FORMAT_PCM_16_BIT
+          - sampling rates:8000, 16000, 48000
+          - channel masks:0x000c, 0x0010
+  Device 4:
+  - id: 16
+  - tag name: FM tuner
+  - type: AUDIO_DEVICE_IN_FM_TUNER                        
+  - Profiles:
+      Profile 0:[dynamic format][dynamic channels][dynamic rates]
+      Profile 1:
+          - format: AUDIO_FORMAT_PCM_16_BIT
+          - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+          - channel masks:0x000c, 0x0010, 0x0030, 0x3c00, 0x80000007, 0x8000000f
+      Profile 2:
+          - format: AUDIO_FORMAT_PCM_8_24_BIT
+          - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+          - channel masks:0x000c, 0x0010, 0x0030, 0x3c00, 0x80000007, 0x8000000f
+  Device 5:
+  - id: 20
+  - tag name: Remote Submix In
+  - type: AUDIO_DEVICE_IN_REMOTE_SUBMIX                   
+  - address: 0                               
+  - Profiles:
+      Profile 0:
+          - format: AUDIO_FORMAT_PCM_16_BIT
+          - sampling rates:48000
+          - channel masks:0x000c
+
+HW Modules dump:
+- HW Module 1:
+  - name: primary
+  - handle: 10
+  - version: 2.0
+  - outputs:
+    output 0:
+    - name: primary output
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:41000, 48000
+            - channel masks:0x0003
+    - flags: 0x0002 (AUDIO_OUTPUT_FLAG_PRIMARY)
+    - Supported devices:
+      Device 1:
+      - id:  2
+      - tag name: Earpiece
+      - type: AUDIO_DEVICE_OUT_EARPIECE                       
+      Device 2:
+      - id:  3
+      - tag name: Speaker
+      - type: AUDIO_DEVICE_OUT_SPEAKER                        
+      Device 3:
+      - tag name: Wired Headset
+      - type: AUDIO_DEVICE_OUT_WIRED_HEADSET                  
+      Device 4:
+      - tag name: Wired Headphones
+      - type: AUDIO_DEVICE_OUT_WIRED_HEADPHONE                
+      Device 5:
+      - tag name: Line Out
+      - type: AUDIO_DEVICE_OUT_LINE                           
+      Device 6:
+      - tag name: Dock Headset
+      - type: AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET              
+      Device 7:
+      - tag name: BT SCO
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO                  
+      Device 8:
+      - tag name: BT SCO Headset
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET          
+      Device 9:
+      - tag name: BT SCO Car Kit
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT           
+      Device 10:
+      - tag name: HDMI Out
+      - type: AUDIO_DEVICE_OUT_AUX_DIGITAL|AUDIO_DEVICE_OUT_HDMI
+
+    - maxOpenCount: 1 - curOpenCount: 1
+    - maxActiveCount: 1 - curActiveCount: 0
+    output 1:
+    - name: deep_buffer
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x0003
+    - flags: 0x0008 (AUDIO_OUTPUT_FLAG_DEEP_BUFFER)
+    - Supported devices:
+      Device 1:
+      - id:  2
+      - tag name: Earpiece
+      - type: AUDIO_DEVICE_OUT_EARPIECE                       
+      Device 2:
+      - id:  3
+      - tag name: Speaker
+      - type: AUDIO_DEVICE_OUT_SPEAKER                        
+      Device 3:
+      - tag name: Wired Headset
+      - type: AUDIO_DEVICE_OUT_WIRED_HEADSET                  
+      Device 4:
+      - tag name: Wired Headphones
+      - type: AUDIO_DEVICE_OUT_WIRED_HEADPHONE                
+      Device 5:
+      - tag name: Line Out
+      - type: AUDIO_DEVICE_OUT_LINE                           
+      Device 6:
+      - tag name: Dock Headset
+      - type: AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET              
+      Device 7:
+      - tag name: BT SCO
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO                  
+      Device 8:
+      - tag name: BT SCO Headset
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET          
+      Device 9:
+      - tag name: BT SCO Car Kit
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT           
+      Device 10:
+      - tag name: HDMI Out
+      - type: AUDIO_DEVICE_OUT_AUX_DIGITAL|AUDIO_DEVICE_OUT_HDMI
+
+    - maxOpenCount: 1 - curOpenCount: 1
+    - maxActiveCount: 1 - curActiveCount: 0
+    output 2:
+    - name: compressed_offload
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_MP3
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x0001, 0x0003
+        Profile 1:
+            - format: AUDIO_FORMAT_AAC_LC
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x0001, 0x0003
+        Profile 2:
+            - format: AUDIO_FORMAT_AAC_HE_V1
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x0001, 0x0003
+        Profile 3:
+            - format: AUDIO_FORMAT_AAC_HE_V2
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x0001, 0x0003
+        Profile 4:
+            - format: AUDIO_FORMAT_FLAC
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, 176400, 192000
+            - channel masks:0x0001, 0x0003
+    - flags: 0x0031 (AUDIO_OUTPUT_FLAG_DIRECT|AUDIO_OUTPUT_FLAG_COMPRESS_OFFLOAD|AUDIO_OUTPUT_FLAG_NON_BLOCKING)
+    - Supported devices:
+      Device 1:
+      - id:  2
+      - tag name: Earpiece
+      - type: AUDIO_DEVICE_OUT_EARPIECE                       
+      Device 2:
+      - id:  3
+      - tag name: Speaker
+      - type: AUDIO_DEVICE_OUT_SPEAKER                        
+      Device 3:
+      - tag name: Wired Headset
+      - type: AUDIO_DEVICE_OUT_WIRED_HEADSET                  
+      Device 4:
+      - tag name: Wired Headphones
+      - type: AUDIO_DEVICE_OUT_WIRED_HEADPHONE                
+      Device 5:
+      - tag name: Line Out
+      - type: AUDIO_DEVICE_OUT_LINE                           
+      Device 6:
+      - tag name: BT SCO
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO                  
+      Device 7:
+      - tag name: BT SCO Headset
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET          
+      Device 8:
+      - tag name: BT SCO Car Kit
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT           
+      Device 9:
+      - tag name: HDMI Out
+      - type: AUDIO_DEVICE_OUT_AUX_DIGITAL|AUDIO_DEVICE_OUT_HDMI
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+    output 3:
+    - name: voice_tx
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 16000, 48000
+            - channel masks:0x0001, 0x0003
+    - flags: 0x0000 (AUDIO_OUTPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - id:  8
+      - tag name: Telephony Tx
+      - type: AUDIO_DEVICE_OUT_TELEPHONY_TX                   
+
+    - maxOpenCount: 1 - curOpenCount: 1
+    - maxActiveCount: 1 - curActiveCount: 0
+    output 4:
+    - name: incall_music_uplink
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 16000, 48000
+            - channel masks:0x0003
+    - flags: 0x10000 (AUDIO_OUTPUT_FLAG_INCALL_MUSIC)
+    - Supported devices:
+      Device 1:
+      - id:  8
+      - tag name: Telephony Tx
+      - type: AUDIO_DEVICE_OUT_TELEPHONY_TX                   
+
+    - maxOpenCount: 1 - curOpenCount: 1
+    - maxActiveCount: 1 - curActiveCount: 0
+  - inputs:
+    input 0:
+    - name: primary input
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+        Profile 1:
+            - format: AUDIO_FORMAT_PCM_8_24_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+    - flags: 0x0000 (AUDIO_INPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - id: 13
+      - tag name: Built-In Mic
+      - type: AUDIO_DEVICE_IN_BUILTIN_MIC                     
+      - address: bottom                          
+      Device 2:
+      - id: 14
+      - tag name: Built-In Back Mic
+      - type: AUDIO_DEVICE_IN_BACK_MIC                        
+      - address: back                            
+      Device 3:
+      - tag name: Wired Headset Mic
+      - type: AUDIO_DEVICE_IN_WIRED_HEADSET                   
+      Device 4:
+      - tag name: BT SCO Headset Mic
+      - type: AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET|AUDIO_DEVICE_IN_ALL_SCO
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+    input 1:
+    - name: fm input
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x3c00, 0x80000007, 0x8000000f
+        Profile 1:
+            - format: AUDIO_FORMAT_PCM_8_24_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x3c00, 0x80000007, 0x8000000f
+    - flags: 0x0000 (AUDIO_INPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - id: 16
+      - tag name: FM tuner
+      - type: AUDIO_DEVICE_IN_FM_TUNER                        
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+    input 2:
+    - name: voice_rx
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 16000, 48000
+            - channel masks:0x000c, 0x0010
+    - flags: 0x0000 (AUDIO_INPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - id: 18
+      - tag name: Telephony Rx
+      - type: AUDIO_DEVICE_IN_TELEPHONY_RX|AUDIO_DEVICE_IN_VOICE_CALL
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+  - Declared devices:
+    Device 1:
+    - id:  2
+    - tag name: Earpiece
+    - type: AUDIO_DEVICE_OUT_EARPIECE                       
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 2:
+    - id:  3
+    - tag name: Speaker
+    - type: AUDIO_DEVICE_OUT_SPEAKER                        
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 3:
+    - tag name: Wired Headset
+    - type: AUDIO_DEVICE_OUT_WIRED_HEADSET                  
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 4:
+    - tag name: Wired Headphones
+    - type: AUDIO_DEVICE_OUT_WIRED_HEADPHONE                
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 5:
+    - tag name: Line Out
+    - type: AUDIO_DEVICE_OUT_LINE                           
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 6:
+    - tag name: Dock Headset
+    - type: AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET              
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 7:
+    - tag name: BT SCO
+    - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO                  
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 8:
+    - tag name: BT SCO Headset
+    - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET          
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 9:
+    - tag name: BT SCO Car Kit
+    - type: AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT           
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 10:
+    - tag name: HDMI Out
+    - type: AUDIO_DEVICE_OUT_AUX_DIGITAL|AUDIO_DEVICE_OUT_HDMI
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 11:
+    - id:  8
+    - tag name: Telephony Tx
+    - type: AUDIO_DEVICE_OUT_TELEPHONY_TX                   
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 12:
+    - id: 13
+    - tag name: Built-In Mic
+    - type: AUDIO_DEVICE_IN_BUILTIN_MIC                     
+    - address: bottom                          
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+        Profile 1:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+        Profile 2:
+            - format: AUDIO_FORMAT_PCM_8_24_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+    Device 13:
+    - id: 14
+    - tag name: Built-In Back Mic
+    - type: AUDIO_DEVICE_IN_BACK_MIC                        
+    - address: back                            
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+        Profile 1:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+        Profile 2:
+            - format: AUDIO_FORMAT_PCM_8_24_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x80000007
+    Device 14:
+    - tag name: Wired Headset Mic
+    - type: AUDIO_DEVICE_IN_WIRED_HEADSET                   
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 15:
+    - tag name: BT SCO Headset Mic
+    - type: AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET|AUDIO_DEVICE_IN_ALL_SCO
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 16:
+    - id: 18
+    - tag name: Telephony Rx
+    - type: AUDIO_DEVICE_IN_TELEPHONY_RX|AUDIO_DEVICE_IN_VOICE_CALL
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+        Profile 1:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 16000, 48000
+            - channel masks:0x000c, 0x0010
+    Device 17:
+    - id: 16
+    - tag name: FM tuner
+    - type: AUDIO_DEVICE_IN_FM_TUNER                        
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+        Profile 1:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x3c00, 0x80000007, 0x8000000f
+        Profile 2:
+            - format: AUDIO_FORMAT_PCM_8_24_BIT
+            - sampling rates:8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000
+            - channel masks:0x000c, 0x0010, 0x0030, 0x3c00, 0x80000007, 0x8000000f
+
+  Audio Routes (14):
+  - Route 1:
+    - Type: Mix
+    - Sink: Earpiece
+    - Sources: 
+        primary output 
+        deep_buffer 
+        compressed_offload 
+
+  - Route 2:
+    - Type: Mix
+    - Sink: Speaker
+    - Sources: 
+        primary output 
+        deep_buffer 
+        compressed_offload 
+
+  - Route 3:
+    - Type: Mix
+    - Sink: Wired Headset
+    - Sources: 
+        primary output 
+        deep_buffer 
+        compressed_offload 
+
+  - Route 4:
+    - Type: Mix
+    - Sink: Wired Headphones
+    - Sources: 
+        primary output 
+        deep_buffer 
+        compressed_offload 
+
+  - Route 5:
+    - Type: Mix
+    - Sink: Line Out
+    - Sources: 
+        primary output 
+        deep_buffer 
+        compressed_offload 
+
+  - Route 6:
+    - Type: Mix
+    - Sink: Dock Headset
+    - Sources: 
+        primary output 
+        deep_buffer 
+
+  - Route 7:
+    - Type: Mix
+    - Sink: BT SCO
+    - Sources: 
+        primary output 
+        deep_buffer 
+        compressed_offload 
+
+  - Route 8:
+    - Type: Mix
+    - Sink: BT SCO Headset
+    - Sources: 
+        primary output 
+        deep_buffer 
+        compressed_offload 
+
+  - Route 9:
+    - Type: Mix
+    - Sink: BT SCO Car Kit
+    - Sources: 
+        primary output 
+        deep_buffer 
+        compressed_offload 
+
+  - Route 10:
+    - Type: Mix
+    - Sink: HDMI Out
+    - Sources: 
+        primary output 
+        deep_buffer 
+        compressed_offload 
+
+  - Route 11:
+    - Type: Mix
+    - Sink: Telephony Tx
+    - Sources: 
+        voice_tx 
+        incall_music_uplink 
+
+  - Route 12:
+    - Type: Mix
+    - Sink: primary input
+    - Sources: 
+        Built-In Mic 
+        Built-In Back Mic 
+        Wired Headset Mic 
+        BT SCO Headset Mic 
+
+  - Route 13:
+    - Type: Mix
+    - Sink: fm input
+    - Sources: 
+        FM tuner 
+
+  - Route 14:
+    - Type: Mix
+    - Sink: voice_rx
+    - Sources: 
+        Telephony Rx 
+
+- HW Module 2:
+  - name: bluetooth_qti
+  - handle: 18
+  - version: 2.0
+  - outputs:
+    output 0:
+    - name: a2dp output
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:44100, 48000
+            - channel masks:0x0001, 0x0003
+    - flags: 0x0000 (AUDIO_OUTPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - tag name: BT A2DP Out
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_A2DP                 
+      Device 2:
+      - tag name: BT A2DP Headphones
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES      
+      Device 3:
+      - tag name: BT A2DP Speaker
+      - type: AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER         
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+  - inputs:
+    input 0:
+    - name: a2dp input
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:44100, 48000
+            - channel masks:0x000c, 0x0010
+    - flags: 0x0000 (AUDIO_INPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - tag name: BT A2DP In
+      - type: AUDIO_DEVICE_IN_BLUETOOTH_A2DP                  
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+  - Declared devices:
+    Device 1:
+    - tag name: BT A2DP Out
+    - type: AUDIO_DEVICE_OUT_BLUETOOTH_A2DP                 
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:44100
+            - channel masks:0x0003
+    Device 2:
+    - tag name: BT A2DP Headphones
+    - type: AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES      
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:44100
+            - channel masks:0x0003
+    Device 3:
+    - tag name: BT A2DP Speaker
+    - type: AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER         
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:44100
+            - channel masks:0x0003
+    Device 4:
+    - tag name: BT A2DP In
+    - type: AUDIO_DEVICE_IN_BLUETOOTH_A2DP                  
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:44100, 48000
+            - channel masks:0x000c, 0x0010
+
+  Audio Routes (4):
+  - Route 1:
+    - Type: Mix
+    - Sink: BT A2DP Out
+    - Sources: 
+        a2dp output 
+
+  - Route 2:
+    - Type: Mix
+    - Sink: BT A2DP Headphones
+    - Sources: 
+        a2dp output 
+
+  - Route 3:
+    - Type: Mix
+    - Sink: BT A2DP Speaker
+    - Sources: 
+        a2dp output 
+
+  - Route 4:
+    - Type: Mix
+    - Sink: a2dp input
+    - Sources: 
+        BT A2DP In 
+
+- HW Module 3:
+  - name: usb
+  - handle: 26
+  - version: 2.0
+  - outputs:
+    output 0:
+    - name: usb_accessory output
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:44100
+            - channel masks:0x0003
+    - flags: 0x0000 (AUDIO_OUTPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - tag name: USB Host Out
+      - type: AUDIO_DEVICE_OUT_USB_ACCESSORY                  
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+    output 1:
+    - name: usb_device output
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    - flags: 0x0000 (AUDIO_OUTPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - tag name: USB Device Out
+      - type: AUDIO_DEVICE_OUT_USB_DEVICE                     
+      Device 2:
+      - tag name: USB Headset Out
+      - type: AUDIO_DEVICE_OUT_USB_HEADSET                    
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+  - inputs:
+    input 0:
+    - name: usb_device input
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    - flags: 0x0000 (AUDIO_INPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - tag name: USB Device In
+      - type: AUDIO_DEVICE_IN_USB_DEVICE                      
+      Device 2:
+      - tag name: USB Headset In
+      - type: AUDIO_DEVICE_IN_USB_HEADSET                     
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+  - Declared devices:
+    Device 1:
+    - tag name: USB Host Out
+    - type: AUDIO_DEVICE_OUT_USB_ACCESSORY                  
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:44100
+            - channel masks:0x0003
+    Device 2:
+    - tag name: USB Device Out
+    - type: AUDIO_DEVICE_OUT_USB_DEVICE                     
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 3:
+    - tag name: USB Headset Out
+    - type: AUDIO_DEVICE_OUT_USB_HEADSET                    
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 4:
+    - tag name: USB Device In
+    - type: AUDIO_DEVICE_IN_USB_DEVICE                      
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+    Device 5:
+    - tag name: USB Headset In
+    - type: AUDIO_DEVICE_IN_USB_HEADSET                     
+    - Profiles:
+        Profile 0:[dynamic format][dynamic channels][dynamic rates]
+
+  Audio Routes (4):
+  - Route 1:
+    - Type: Mix
+    - Sink: USB Host Out
+    - Sources: 
+        usb_accessory output 
+
+  - Route 2:
+    - Type: Mix
+    - Sink: USB Device Out
+    - Sources: 
+        usb_device output 
+
+  - Route 3:
+    - Type: Mix
+    - Sink: USB Headset Out
+    - Sources: 
+        usb_device output 
+
+  - Route 4:
+    - Type: Mix
+    - Sink: usb_device input
+    - Sources: 
+        USB Device In 
+        USB Headset In 
+
+- HW Module 4:
+  - name: r_submix
+  - handle: 34
+  - version: 2.0
+  - outputs:
+    output 0:
+    - name: r_submix output
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:48000
+            - channel masks:0x0003
+    - flags: 0x0000 (AUDIO_OUTPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - tag name: Remote Submix Out
+      - type: AUDIO_DEVICE_OUT_REMOTE_SUBMIX                  
+      - address: 0                               
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+  - inputs:
+    input 0:
+    - name: r_submix input
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:48000
+            - channel masks:0x000c
+    - flags: 0x0000 (AUDIO_INPUT_FLAG_NONE)
+    - Supported devices:
+      Device 1:
+      - id: 20
+      - tag name: Remote Submix In
+      - type: AUDIO_DEVICE_IN_REMOTE_SUBMIX                   
+      - address: 0                               
+
+    - maxOpenCount: 1 - curOpenCount: 0
+    - maxActiveCount: 1 - curActiveCount: 0
+  - Declared devices:
+    Device 1:
+    - tag name: Remote Submix Out
+    - type: AUDIO_DEVICE_OUT_REMOTE_SUBMIX                  
+    - address: 0                               
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:48000
+            - channel masks:0x0003
+    Device 2:
+    - id: 20
+    - tag name: Remote Submix In
+    - type: AUDIO_DEVICE_IN_REMOTE_SUBMIX                   
+    - address: 0                               
+    - Profiles:
+        Profile 0:
+            - format: AUDIO_FORMAT_PCM_16_BIT
+            - sampling rates:48000
+            - channel masks:0x000c
+
+  Audio Routes (2):
+  - Route 1:
+    - Type: Mix
+    - Sink: Remote Submix Out
+    - Sources: 
+        r_submix output 
+
+  - Route 2:
+    - Type: Mix
+    - Sink: r_submix input
+    - Sources: 
+        Remote Submix In 
+
+
+Outputs dump:
+- Output 13 dump:
+ Latency: 50
+ Flags 00000002
+ ID: 1
+ Sampling rate: 48000
+ Format: 00000001
+ Channels: 00000003
+ Devices: {type:0x2,@:}
+ Global active count: 0
+ Product Strategy id: 18    - ActivityCount: 0, StopTime: 1016992631204, 
+ Product Strategy id: 19    - ActivityCount: 0, StopTime: 954726073699, 
+ Volume Activities id: 1    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 2    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 4    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 5    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 6    - ActivityCount: 0, StopTime: 0, , Volume: -35.000, MuteCount: 00
+ Volume Activities id: 7    - ActivityCount: 0, StopTime: 1016992631204, , Volume: -23.150, MuteCount: 00
+ Volume Activities id: 8    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 9    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 10    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 11    - ActivityCount: 0, StopTime: 954726073699, , Volume: -17.118, MuteCount: 00
+ Volume Activities id: 12    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 01
+ Volume Activities id: 13    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ AudioTrack Clients:
+  Client 1:
+  - Port Id: 22 Session Id: 41 UID: 1001
+  - Format: 00000001 Sampling rate: 0 Channels: 00000001
+  - Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING Source: AUDIO_SOURCE_DEFAULT Flags: 0x400 Tags:  }
+  - Preferred Device Id: 00000000
+  - State: Inactive
+  - Stream: 8 flags: 00000004
+  - Refcount: 0
+  Client 2:
+  - Port Id: 31 Session Id: 113 UID: 10146
+  - Format: 00000001 Sampling rate: 48000 Channels: 00000003
+  - Attributes: { Content type: AUDIO_CONTENT_TYPE_SONIFICATION Usage: AUDIO_USAGE_ASSISTANCE_SONIFICATION Source: AUDIO_SOURCE_DEFAULT Flags: 0xc00 Tags:  }
+  - Preferred Device Id: 00000000
+  - State: Inactive
+  - Stream: 1 flags: 00000004
+  - Refcount: 0
+
+- Output 21 dump:
+ Latency: 80
+ Flags 00000008
+ ID: 5
+ Sampling rate: 48000
+ Format: 00000001
+ Channels: 00000003
+ Devices: {type:0x2,@:}
+ Global active count: 0
+ Product Strategy id: 19    - ActivityCount: 0, StopTime: 26222102349, 
+ Volume Activities id: 1    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 2    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 4    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 5    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 6    - ActivityCount: 0, StopTime: 26222102349, , Volume: -35.000, MuteCount: 00
+ Volume Activities id: 7    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 8    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 9    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 10    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 11    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ Volume Activities id: 12    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 01
+ Volume Activities id: 13    - ActivityCount: 0, StopTime: 0, , Volume: nan, MuteCount: 00
+ AudioTrack Clients:
+
+- Output 29 dump:
+ Latency: 53
+ Flags 00000000
+ ID: 7
+ Sampling rate: 48000
+ Format: 00000001
+ Channels: 00000003
+ Devices: {type:0x10000,@:}
+ Global active count: 0
+ Volume Activities id: 1    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 2    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 4    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 5    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 6    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 7    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 8    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 9    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 10    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 11    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 12    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 01
+ Volume Activities id: 13    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ AudioTrack Clients:
+
+- Output 37 dump:
+ Latency: 50
+ Flags 00010000
+ ID: 10
+ Sampling rate: 48000
+ Format: 00000001
+ Channels: 00000003
+ Devices: {type:0x10000,@:}
+ Global active count: 0
+ Volume Activities id: 1    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 2    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 4    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 5    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 6    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 7    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 8    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 9    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 10    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 11    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ Volume Activities id: 12    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 01
+ Volume Activities id: 13    - ActivityCount: 0, StopTime: 0, , Volume: 0.000, MuteCount: 00
+ AudioTrack Clients:
+
+
+Inputs dump:
+
+Total Effects CPU: 0.000000 MIPS, Total Effects memory: 0 KB, Max memory used: 1 KB
+Effects:
+
+Audio Patches:
+  Patch 1: owner uid 1041, handle  4, af handle 12
+    [src  1] Mix ID 1 I/O handle 13
+    [sink 1] Device ID 3 AUDIO_DEVICE_OUT_SPEAKER
+  Patch 2: owner uid 1041, handle  6, af handle 20
+    [src  1] Mix ID 5 I/O handle 21
+    [sink 1] Device ID 3 AUDIO_DEVICE_OUT_SPEAKER
+  Patch 3: owner uid 1041, handle  9, af handle 28
+    [src  1] Mix ID 7 I/O handle 29
+    [sink 1] Device ID 8 AUDIO_DEVICE_OUT_TELEPHONY_TX
+  Patch 4: owner uid 1041, handle 11, af handle 36
+    [src  1] Mix ID 10 I/O handle 37
+    [sink 1] Device ID 8 AUDIO_DEVICE_OUT_TELEPHONY_TX
+
+Audio Policy Mix:
+
+Audio sources:
+ AllowedCapturePolicies:
+
+Policy Engine dump:
+  Product Strategies dump:
+    -STRATEGY_PHONE (id: 14)
+      Selected Device: {type:AUDIO_DEVICE_OUT_EARPIECE, @:}
+       Group: 13 stream: AUDIO_STREAM_VOICE_CALL
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_VOICE_COMMUNICATION Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 3 stream: AUDIO_STREAM_BLUETOOTH_SCO
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_UNKNOWN Source: AUDIO_SOURCE_DEFAULT Flags: 0x4 Tags:  }
+
+    -STRATEGY_SONIFICATION (id: 15)
+      Selected Device: {type:AUDIO_DEVICE_OUT_SPEAKER, @:}
+       Group: 10 stream: AUDIO_STREAM_RING
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 2 stream: AUDIO_STREAM_ALARM
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ALARM Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+
+    -STRATEGY_ENFORCED_AUDIBLE (id: 16)
+      Selected Device: {type:AUDIO_DEVICE_OUT_SPEAKER, @:}
+       Group: 5 stream: AUDIO_STREAM_ENFORCED_AUDIBLE
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_UNKNOWN Source: AUDIO_SOURCE_DEFAULT Flags: 0x1 Tags:  }
+
+    -STRATEGY_ACCESSIBILITY (id: 17)
+      Selected Device: {type:AUDIO_DEVICE_OUT_SPEAKER, @:}
+       Group: 1 stream: AUDIO_STREAM_ACCESSIBILITY
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+
+    -STRATEGY_SONIFICATION_RESPECTFUL (id: 18)
+      Selected Device: {type:AUDIO_DEVICE_OUT_SPEAKER, @:}
+       Group: 7 stream: AUDIO_STREAM_NOTIFICATION
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 7 stream: AUDIO_STREAM_NOTIFICATION
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_COMMUNICATION_REQUEST Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 7 stream: AUDIO_STREAM_NOTIFICATION
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_COMMUNICATION_INSTANT Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 7 stream: AUDIO_STREAM_NOTIFICATION
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_COMMUNICATION_DELAYED Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 7 stream: AUDIO_STREAM_NOTIFICATION
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_EVENT Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+
+    -STRATEGY_MEDIA (id: 19)
+      Selected Device: {type:AUDIO_DEVICE_OUT_SPEAKER, @:}
+       Group: 6 stream: AUDIO_STREAM_MUSIC
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_MEDIA Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 6 stream: AUDIO_STREAM_MUSIC
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_GAME Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 6 stream: AUDIO_STREAM_MUSIC
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ASSISTANT Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 6 stream: AUDIO_STREAM_MUSIC
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       Group: 6 stream: AUDIO_STREAM_MUSIC
+        Attributes: { Any }
+       Group: 11 stream: AUDIO_STREAM_SYSTEM
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ASSISTANCE_SONIFICATION Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+
+    -STRATEGY_DTMF (id: 20)
+      Selected Device: {type:AUDIO_DEVICE_OUT_SPEAKER, @:}
+       Group: 4 stream: AUDIO_STREAM_DTMF
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+
+    -STRATEGY_TRANSMITTED_THROUGH_SPEAKER (id: 21)
+      Selected Device: {type:AUDIO_DEVICE_OUT_SPEAKER, @:}
+       Group: 12 stream: AUDIO_STREAM_TTS
+        Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_UNKNOWN Source: AUDIO_SOURCE_DEFAULT Flags: 0x8 Tags:  }
+
+    -STRATEGY_REROUTING (id: 22)
+      Selected Device: {type:AUDIO_DEVICE_OUT_SPEAKER, @:}
+       Group: 9 stream: AUDIO_STREAM_REROUTING
+        Attributes: { Any }
+
+    -STRATEGY_PATCH (id: 23)
+      Selected Device: {type:AUDIO_DEVICE_OUT_SPEAKER, @:}
+       Group: 8 stream: AUDIO_STREAM_PATCH
+        Attributes: { Any }
+
+  Volume Groups dump:
+    -AUDIO_STREAM_ACCESSIBILITY (id: 1)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_ACCESSIBILITY(10)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  1, -4800),  ( 34, -3200),  ( 67, -1600),  (100,     0) }
+       DEVICE_CATEGORY_SPEAKER : { (  1, -5200),  ( 33, -3500),  ( 66, -2600),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  1, -4800),  ( 34, -3200),  ( 67, -1600),  (100,     0) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -4800),  ( 34, -3200),  ( 67, -1600),  (100,     0) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          01         15         0002 : 02, 4000000 : 04, 40000000 : 06, 
+
+
+    -AUDIO_STREAM_ALARM (id: 2)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_ALARM(4)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ALARM Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  1, -4950),  ( 33, -3350),  ( 66, -1700),  (100,     0) }
+       DEVICE_CATEGORY_SPEAKER : { (  1, -4800),  ( 40, -3400),  ( 80, -2000),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  1, -4950),  ( 33, -3350),  ( 66, -1700),  (100,     0) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -4800),  ( 20, -4000),  ( 60, -2100),  (100, -1000) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          01         07         40000000 : 06, 
+
+
+    -AUDIO_STREAM_BLUETOOTH_SCO (id: 3)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_BLUETOOTH_SCO(6)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_UNKNOWN Source: AUDIO_SOURCE_DEFAULT Flags: 0x4 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  0, -2100),  ( 33, -1400),  ( 66,  -700),  (100,     0) }
+       DEVICE_CATEGORY_SPEAKER : { (  0, -2100),  ( 33, -1400),  ( 66,  -700),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  0, -2100),  ( 33, -1400),  ( 66,  -700),  (100,     0) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -4800),  ( 34, -3200),  ( 67, -1600),  (100,     0) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         15         40000000 : 07, 
+
+
+    -AUDIO_STREAM_DTMF (id: 4)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_DTMF(8)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  1, -3000),  ( 33, -2600),  ( 66, -2200),  (100, -1800) }
+       DEVICE_CATEGORY_SPEAKER : { (  1, -3000),  ( 33, -2400),  ( 66, -1800),  (100, -1200) }
+       DEVICE_CATEGORY_EARPIECE : { (  1, -3000),  ( 33, -2400),  ( 66, -1800),  (100, -1200) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -5800),  ( 20, -4000),  ( 60, -2100),  (100, -1000) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         15         40000000 : 00, 
+
+
+    -AUDIO_STREAM_ENFORCED_AUDIBLE (id: 5)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_ENFORCED_AUDIBLE(7)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_UNKNOWN Source: AUDIO_SOURCE_DEFAULT Flags: 0x1 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  1, -3000),  ( 33, -2400),  ( 66, -1800),  (100, -1200) }
+       DEVICE_CATEGORY_SPEAKER : { (  1, -3000),  ( 33, -2400),  ( 66, -1800),  (100, -1200) }
+       DEVICE_CATEGORY_EARPIECE : { (  1, -3000),  ( 33, -2400),  ( 66, -1800),  (100, -1200) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -4800),  ( 20, -4000),  ( 60, -2100),  (100, -1000) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         07         40000000 : 00, 
+
+
+    -AUDIO_STREAM_MUSIC (id: 6)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_MUSIC(3)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_MEDIA Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+                    { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_GAME Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+                    { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ASSISTANT Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+                    { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+                    { Any }
+       DEVICE_CATEGORY_HEADSET : { (  1, -4800),  ( 34, -3200),  ( 67, -1600),  (100,     0) }
+       DEVICE_CATEGORY_SPEAKER : { (  1, -5200),  ( 33, -3500),  ( 66, -2600),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  1, -4800),  ( 34, -3200),  ( 67, -1600),  (100,     0) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -4800),  ( 34, -3200),  ( 67, -1600),  (100,     0) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         15         0002 : 01, 4000000 : 03, 40000000 : 05, 
+
+
+    -AUDIO_STREAM_NOTIFICATION (id: 7)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_NOTIFICATION(5)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+                    { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_COMMUNICATION_REQUEST Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+                    { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_COMMUNICATION_INSTANT Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+                    { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_COMMUNICATION_DELAYED Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+                    { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_EVENT Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  1, -4950),  ( 33, -3350),  ( 66, -1700),  (100,     0) }
+       DEVICE_CATEGORY_SPEAKER : { (  1, -4800),  ( 40, -3400),  ( 80, -2000),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  1, -4950),  ( 33, -3350),  ( 66, -1700),  (100,     0) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -4800),  ( 20, -4000),  ( 60, -2100),  (100, -1000) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         07         40000000 : 00, 
+
+
+    -AUDIO_STREAM_PATCH (id: 8)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_PATCH(12)  
+       Attributes: { Any }
+       DEVICE_CATEGORY_HEADSET : { (  0,     0),  (100,     0) }
+       DEVICE_CATEGORY_SPEAKER : { (  0,     0),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  0,     0),  (100,     0) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  0,     0),  (100,     0) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         100         40000000 : 00, 
+
+
+    -AUDIO_STREAM_REROUTING (id: 9)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_REROUTING(11)  
+       Attributes: { Any }
+       DEVICE_CATEGORY_HEADSET : { (  0,     0),  (100,     0) }
+       DEVICE_CATEGORY_SPEAKER : { (  0,     0),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  0,     0),  (100,     0) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  0,     0),  (100,     0) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         100         40000000 : 00, 
+
+
+    -AUDIO_STREAM_RING (id: 10)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_RING(2)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  1, -4950),  ( 33, -3350),  ( 66, -1700),  (100,     0) }
+       DEVICE_CATEGORY_SPEAKER : { (  1, -4800),  ( 40, -3400),  ( 80, -2000),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  1, -4950),  ( 33, -3350),  ( 66, -1700),  (100,     0) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -4800),  ( 20, -4000),  ( 60, -2100),  (100, -1000) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         07         40000000 : 00, 
+
+
+    -AUDIO_STREAM_SYSTEM (id: 11)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_SYSTEM(1)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_ASSISTANCE_SONIFICATION Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  1, -3000),  ( 33, -2600),  ( 66, -2200),  (100, -1800) }
+       DEVICE_CATEGORY_SPEAKER : { (  1, -3000),  ( 33, -2400),  ( 66, -1800),  (100, -1200) }
+       DEVICE_CATEGORY_EARPIECE : { (  1, -3000),  ( 33, -2400),  ( 66, -1800),  (100, -1200) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -5800),  ( 20, -4000),  ( 60, -2100),  (100, -1000) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         07         40000000 : 00, 
+
+
+    -AUDIO_STREAM_TTS (id: 12)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_TTS(9)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_UNKNOWN Source: AUDIO_SOURCE_DEFAULT Flags: 0x8 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  0, -9600),  (100, -9600) }
+       DEVICE_CATEGORY_SPEAKER : { (  0,     0),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  0, -9600),  (100, -9600) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  0, -9600),  (100, -9600) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          00         15         0002 : 01, 4000000 : 03, 40000000 : 05, 
+
+
+    -AUDIO_STREAM_VOICE_CALL (id: 13)
+      Volume Curves Streams/Attributes, Curve points Streams for device category (index, attenuation in millibel)
+       Streams: AUDIO_STREAM_VOICE_CALL(0)  
+       Attributes: { Content type: AUDIO_CONTENT_TYPE_UNKNOWN Usage: AUDIO_USAGE_VOICE_COMMUNICATION Source: AUDIO_SOURCE_DEFAULT Flags: 0x0 Tags:  }
+       DEVICE_CATEGORY_HEADSET : { (  0, -2100),  ( 33, -1400),  ( 66,  -700),  (100,     0) }
+       DEVICE_CATEGORY_SPEAKER : { (  0, -3200),  ( 33, -2300),  ( 66, -1200),  (100,     0) }
+       DEVICE_CATEGORY_EARPIECE : { (  0, -2100),  ( 33, -1400),  ( 66,  -700),  (100,     0) }
+       DEVICE_CATEGORY_EXT_MEDIA : { (  1, -4800),  ( 34, -3200),  ( 67, -1600),  (100,     0) }
+        Can be muted  Index Min  Index Max  Index Cur [device : index]...
+        true          01         08         40000000 : 06, 
+
+Allow playback capture log:
+  Package manager errors: 0
+  - uid= 1001, allowPlaybackCapture=false, packageName=shared:android.uid.phone
+  - uid= 1003, allowPlaybackCapture=false, packageName=
+  - uid=10146, allowPlaybackCapture=false, packageName=shared:android.uid.systemui

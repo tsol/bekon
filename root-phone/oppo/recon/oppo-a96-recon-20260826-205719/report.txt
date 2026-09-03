@@ -1,0 +1,68 @@
+OPPO A96 CPH2333 READ-ONLY RECON
+Output: /home/harry/hermes/workspace/projects/wlya-tunnel/root-phone/oppo/recon/oppo-a96-recon-20260826-205719
+Date: Wed 26 Aug 20:57:19 MSK 2026
+
+NO unlock / flash / erase commands are used.
+
+============================================================
+1. HOST TOOLS
+============================================================
+
++ adb version
+./recon.sh: line 24: adb: command not found
+[exit=127]
+
++ fastboot --version
+./recon.sh: line 24: fastboot: command not found
+[exit=127]
+
++ lsusb
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 006: ID 04f2:b729 Chicony Electronics Co., Ltd Chicony USB2.0 Camera
+Bus 001 Device 007: ID 8087:0aaa Intel Corp. Bluetooth 9460/9560 Jefferson Peak (JfP)
+Bus 001 Device 010: ID 1ea7:0066 SHARKOON Technologies GmbH [Mediatrack Edge Mini Keyboard]
+Bus 001 Device 035: ID 22d9:2765 OPPO Electronics Corp. Oppo N1
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+
+============================================================
+2. ADB DEVICE DETECTION
+============================================================
+
++ adb start-server
+./recon.sh: line 24: adb: command not found
+[exit=127]
+
++ adb devices -l
+./recon.sh: line 24: adb: command not found
+[exit=127]
+No usable ADB device detected.
+If the phone is already in fastboot, the next section may still work.
+
+============================================================
+10. FASTBOOT DEVICE
+============================================================
+
++ fastboot devices
+./recon.sh: line 24: fastboot: command not found
+[exit=127]
+No fastboot device detected.
+
+============================================================
+16. SUMMARY / NEXT STEP
+============================================================
+Recon complete.
+
+Report: oppo-a96-recon-20260826-205719/report.txt
+Full fastboot variables: oppo-a96-recon-20260826-205719/fastboot-getvar-all.txt
+
+IMPORTANT:
+This script did NOT run:
+  fastboot flashing unlock
+  fastboot oem unlock
+  fastboot erase
+  fastboot format
+  fastboot flash
+  fastboot boot
+
+Send the entire oppo-a96-recon-20260826-205719 directory (or at least report.txt and fastboot-getvar-all.txt)
+for analysis before attempting any unlock or flashing operation.

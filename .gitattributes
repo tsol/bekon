@@ -1,0 +1,3 @@
+# Excluded from `git archive` exports (lab trees, agent handoffs).
+root-phone/itel-a27 export-ignore
+root-phone/motorola/AGENT-HANDOFF.md export-ignore

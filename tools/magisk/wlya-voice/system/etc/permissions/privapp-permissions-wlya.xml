@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <privapp-permissions package="pro.potoki.bekon">
+        <permission name="android.permission.CAPTURE_AUDIO_OUTPUT" />
+        <permission name="android.permission.MODIFY_PHONE_STATE" />
+        <permission name="android.permission.READ_PRECISE_PHONE_STATE" />
+        <permission name="android.permission.READ_PHONE_STATE" />
+        <permission name="android.permission.READ_CALL_LOG" />
+        <permission name="android.permission.CALL_PHONE" />
+        <permission name="android.permission.ANSWER_PHONE_CALLS" />
+        <permission name="android.permission.WRITE_SECURE_SETTINGS" />
+    </privapp-permissions>
+</permissions>

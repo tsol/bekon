@@ -1,0 +1,26 @@
+{
+  "type": "email",
+  "label": "SMTP/IMAP Email",
+  "adapterClass": "EmailAdapter",
+  "factoryKind": "simple",
+  "defaultConfig": {
+    "host": "imap.mail.ru",
+    "port": 993,
+    "useSSL": true,
+    "smtpHost": "smtp.mail.ru",
+    "smtpPort": 465,
+    "smtpUseSSL": true,
+    "login": "",
+    "password": "",
+    "sendMode": "smtp",
+    "imapFolder": "INBOX",
+    "smtpTo": "",
+    "tunnelMessageTtlSeconds": 900,
+    "windowSize": 262144,
+    "pollIntervalMs": 10000,
+    "role": "backup",
+    "sleepPollMs": 3600000,
+    "sleepJitterMs": 900000,
+    "idleMs": 600000
+  }
+}

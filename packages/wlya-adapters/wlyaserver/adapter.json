@@ -1,0 +1,16 @@
+{
+  "type": "wlyaserver",
+  "label": "WLYA Server",
+  "adapterClass": "WlyaServerAdapter",
+  "factoryKind": "simple",
+  "defaultConfig": {
+    "serverUrl": "https://wlya.potoki.pro",
+    "clientId": "",
+    "windowSize": 262144,
+    "pollIntervalMs": 2000,
+    "role": "primary",
+    "sleepPollMs": 3600000,
+    "sleepJitterMs": 900000,
+    "idleMs": 600000
+  }
+}

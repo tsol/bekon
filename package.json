@@ -1,0 +1,28 @@
+{
+  "name": "bekon",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config apps/workbench/vite.config.ts",
+    "build": "vue-tsc -b apps/workbench && vite build --config apps/workbench/vite.config.ts",
+    "preview": "vite preview --config apps/workbench/vite.config.ts",
+    "dev:start": "node scripts/dev-start.mjs",
+    "dev:stop": "node scripts/dev-stop.mjs",
+    "dev:status": "node scripts/dev-status.mjs",
+    "dev:restart": "node scripts/dev-restart.mjs"
+  },
+  "dependencies": {
+    "vue": "^3.5.39",
+    "vue-router": "^4.6.4",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.2",
+    "@vitejs/plugin-vue": "^5.2.2",
+    "@vue/tsconfig": "^0.9.1",
+    "typescript": "~6.0.2",
+    "vite": "^5.4.14",
+    "vue-tsc": "^3.3.5"
+  }
+}

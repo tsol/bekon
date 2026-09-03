@@ -1,0 +1,30 @@
+services:
+  app:
+    build: .
+    ports:
+      - "18081:18081"
+    environment:
+      REDIS_URL: redis://redis:6379
+      PORT: "18081"
+      BEKON_PUBLIC_DIR: /app/public
+    volumes:
+      - ./public:/app/public:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 100mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

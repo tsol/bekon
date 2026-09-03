@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.BekonPhone" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">#FF121214</item>
+        <item name="android:colorBackground">#FF121214</item>
+        <item name="android:textColorPrimary">#FFF4F1EC</item>
+        <item name="android:textColorSecondary">#FFB9B4AD</item>
+    </style>
+</resources>
