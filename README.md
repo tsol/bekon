@@ -1,6 +1,14 @@
+<div align="center">
+
+<img src="docs/bekon-icon.png" alt="Bekon" width="128">
+
 # Bekon Suite · Be Konnected
 
 **WLYA in the wire. Bekon in the room.**
+
+**English** · [Русский](README.ru.md) · [Українська](README.uk.md) · [Беларуская](README.be.md) · [中文](README.zh.md) · [فارسی](README.fa.md)
+
+</div>
 
 Self-host the relay. You own the endpoint. Example hostnames in docs are illustrations only.
 
@@ -53,30 +61,43 @@ Duty already fails over from the fast relay to sleeping backups ([`docs/ARCHITEC
 | GSM / voice | **Bekon Line** | Home SIM as an anchor. Client: **Bekon Phone**. |
 | Umbrella | **Bekon Suite** | Wire + device in the room. Tagline: Be Konnected. |
 
-One device, several modes — not four store brands. Names: [`docs/BRAND.md`](docs/BRAND.md).
+**Line (voice)**
 
 ```
-                    ┌─────────────────────────────────────┐
-                    │  Laptop — Bekon desktop-ui          │
-                    │  Tunnels · Control · Voice          │
-                    │  desktop-ui (Vite)                  │
-                    │  wlya-tunnel :18080                 │
-                    │  phone-control-api :18082           │
-                    └──────────────┬──────────────────────┘
-                                   │
-              tunnel (HMAC)        │        voice room (HMAC join)
-                                   │
-                    ┌──────────────▼──────────────────────┐
-                    │  Your relay — wlya-server           │
-                    │  Redis inbox + /v1/call             │
-                    └──────────────┬──────────────────────┘
-         ┌─────────────────────────┼─────────────────────────┐
-         ▼                         ▼                         ▼
-   Gateway APK              Bekon Phone                 Other tunnel
-   home device              Line handset                peers
+              ┌───────────────────────────┐
+              │ phone in your pocket,     │
+              │ you in Georgia            │
+              └─────────────┬─────────────┘
+                            │
+              ┌─────────────▼─────────────┐
+              │ wlya relay                │
+              │ (WebSocket mirror)        │
+              └─────────────┬─────────────┘
+                            │
+              ┌─────────────▼─────────────┐      ┌─────┐
+              │ grandma’s old Android     │ ──→  │ GSM │
+              └───────────────────────────┘      └─────┘
 ```
 
-Tunnel traffic and voice rooms are separate paths on the same relay. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/PROTOCOL.md`](docs/PROTOCOL.md).
+**Control (agent)**
+
+```
+        agent ──→ ┌───────────┐ ←── or you control it yourself
+                  │ phone-mcp │
+                  └─────┬─────┘
+                        │
+              ┌─────────▼─────────┐
+              │ imap, smtp, wlya —│
+              │ any channel       │
+              └─────────┬─────────┘
+                        │
+              ┌─────────▼─────────┐
+              │ grandma’s old     │
+              │ Android           │
+              └───────────────────┘
+```
+
+Wire details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/PROTOCOL.md`](docs/PROTOCOL.md).
 
 ---
 
@@ -132,7 +153,6 @@ bekon/
 | [`docs/PROTOCOL.md`](docs/PROTOCOL.md) | HMAC, seed vs Secret, relay endpoints |
 | [`docs/CONTROL-PROTOCOL.md`](docs/CONTROL-PROTOCOL.md) | phone-control-api queue API |
 | [`docs/LINE.md`](docs/LINE.md) | Voice / GSM modes A/B/C |
-| [`docs/BRAND.md`](docs/BRAND.md) | Product names |
 | [`docs/COMMANDS.md`](docs/COMMANDS.md) | npm scripts — build, deploy, relay, lab |
 | [`packages/wlya-adapters/README.md`](packages/wlya-adapters/README.md) | Adding an adapter |
 | [`packages/wlya-server/README.md`](packages/wlya-server/README.md) | Relay deploy |

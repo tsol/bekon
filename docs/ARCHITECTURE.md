@@ -121,7 +121,7 @@ Both are Android apps built from this monorepo; they target different roles.
 | Deploy script | `apps/android-gateway/scripts/deploy` | `apps/android-phone/scripts/deploy` |
 | desktop-ui tab | Tunnels (config) + Control (queue) | Voice (companion) |
 
-One physical phone can run Gateway (tunnel + Control); another device (or profile) may run Bekon Phone for Line. Names: [`BRAND.md`](BRAND.md).
+One physical phone can run Gateway (tunnel + Control); another device (or profile) may run Bekon Phone for Line.
 
 ---
 
