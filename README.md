@@ -16,11 +16,15 @@ Leave home, leave a **rooted Android with a local SIM** at grandma’s (or any t
 
 The pipe is **Bekon Line**: GSM audio over your relay, plus the WLYA tunnel so the device stays reachable when ordinary internet does not.
 
+**Setup guide:** [`docs/guides/GUIDE-LINE.md`](docs/guides/GUIDE-LINE.md)
+
 ### 2. Give your agent a phone
 
 Plug MCP into an agent and let it **own a real Android**: tap, swipe, launch apps, pay with your card, doomscroll Instagram, sit in settings until something works.
 
 That is **Bekon Control** — Gateway APK + `phone-control-api` + `phone-control-mcp`. The agent does not ADB the device; it queues work through the tunnel.
+
+**Setup guide:** [`docs/guides/GUIDE-CONTROL.md`](docs/guides/GUIDE-CONTROL.md)
 
 ### 3. Old Android as a smart speaker
 
@@ -28,11 +32,15 @@ Fire Alice and Alexa. Talk to **Hermes** (or any agent) from a dusty phone on th
 
 Today this is Line walkie + the same tunnel Control uses. Always-on “speaker in the room” is on the roadmap in [`docs/USE-CASES.md`](docs/USE-CASES.md).
 
+**Setup guide:** [`docs/guides/GUIDE-SPEAKER.md`](docs/guides/GUIDE-SPEAKER.md)
+
 ### 4. White List Your Ass
 
 **WLYA** = White List Your Ass. Drive the phone through **email**, a **spreadsheet**, **MAX**, or any custom tunnel adapter — including from a parking garage when the “real” internet is gone. Stack as many backup adapters as you want so you do not lose the line home.
 
 Duty already fails over from the fast relay to sleeping backups ([`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#adapter-duty)). Lua adapters you can add without a new APK are on the roadmap.
+
+**Setup guide:** [`docs/guides/GUIDE-WLYA.md`](docs/guides/GUIDE-WLYA.md)
 
 ---
 
@@ -87,7 +95,7 @@ npm run gateway:deploy    # USB — needs ANDROID_HOME / adb
 
 Open the UI URL from `npm run stack:status` (often `http://127.0.0.1:5174`). Point adapters and voice at **your** relay.
 
-**All commands:** [`docs/COMMANDS.md`](docs/COMMANDS.md).
+**All commands:** [`docs/COMMANDS.md`](docs/COMMANDS.md). **Per use case:** [`docs/guides/GUIDES.md`](docs/guides/GUIDES.md).
 
 **Android (aliases):** `npm run gateway:build`, `npm run phone-app:deploy`.
 
@@ -119,6 +127,7 @@ bekon/
 | Doc | Contents |
 |-----|----------|
 | [`docs/USE-CASES.md`](docs/USE-CASES.md) | The four cases plus roadmap |
+| [`docs/guides/GUIDES.md`](docs/guides/GUIDES.md) | Setup guides (Line, Control, Speaker, WLYA) |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | How components connect, adapter duty |
 | [`docs/PROTOCOL.md`](docs/PROTOCOL.md) | HMAC, seed vs Secret, relay endpoints |
 | [`docs/CONTROL-PROTOCOL.md`](docs/CONTROL-PROTOCOL.md) | phone-control-api queue API |

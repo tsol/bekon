@@ -10,6 +10,8 @@ Docs in this repository are **English** by default.
 
 **Job:** you left the country. A rooted Android with a **local SIM** stays at a trusted address. You place and receive GSM calls through that radio so institutions still hear a domestic number — commissariat, interior ministry, FSIN, banks, whoever.
 
+**Step-by-step (npm):** [`guides/GUIDE-LINE.md`](guides/GUIDE-LINE.md) — relay on your VPS, local Docker, or the shared test host `wlya.potoki.pro` (RKN-blocked in Russia; tests / optional donation only).
+
 **Now**
 
 - Self-hosted `wlya-server` (`/v1/call` + message inbox).
@@ -34,6 +36,8 @@ Docs in this repository are **English** by default.
 - `phone-control-api` queue API ([`CONTROL-PROTOCOL.md`](CONTROL-PROTOCOL.md)).
 - `phone-control-mcp` tools (`look`, `act`, `open`, …) over that queue. No ADB for the happy path.
 
+**Step-by-step (npm):** [`guides/GUIDE-CONTROL.md`](guides/GUIDE-CONTROL.md).
+
 **Next**
 
 - Publish MCP as a standalone package (`@bekon/mcp` / pip) so agents do not need the whole monorepo.
@@ -50,6 +54,8 @@ Docs in this repository are **English** by default.
 
 - Walkie-talkie (mode A): mic/speaker over `/v1/call`.
 - Same Gateway can run Control in parallel so the agent still has a screen if you want both.
+
+**Step-by-step (npm):** [`guides/GUIDE-SPEAKER.md`](guides/GUIDE-SPEAKER.md).
 
 **Next**
 
@@ -70,6 +76,8 @@ Docs in this repository are **English** by default.
 - Native `wlyaserver` (HTTP relay) as primary; **email** as a real backup transport.
 - Adapter **duty**: backups sleep (~hourly poll), wake on foreign inbound or when primary fails ([`ARCHITECTURE.md`](ARCHITECTURE.md#adapter-duty)).
 - Compile-time adapters in `packages/wlya-adapters/` (codegen into desktop + Gateway). Mock adapter for local tests.
+
+**Step-by-step (npm):** [`guides/GUIDE-WLYA.md`](guides/GUIDE-WLYA.md).
 
 **Next**
 
